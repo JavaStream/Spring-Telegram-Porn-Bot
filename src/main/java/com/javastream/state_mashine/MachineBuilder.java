@@ -1,9 +1,8 @@
 package com.javastream.state_mashine;
 
+import com.javastream.commands.Find;
 import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
-import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.StateMachine;
@@ -14,7 +13,7 @@ import java.util.EnumSet;
 @Component
 public class MachineBuilder {
 
-    public StateMachine<OrderStates, OrderEvents> buildMachine() throws Exception {
+       public StateMachine<OrderStates, OrderEvents> buildMachine() throws Exception {
         Builder<OrderStates, OrderEvents> builder = StateMachineBuilder.builder();
 
         builder.configureStates()
@@ -25,8 +24,8 @@ public class MachineBuilder {
         builder.configureTransitions()
                 .withExternal()
                 .source(OrderStates.START).target(OrderStates.FIND)
-                .event(OrderEvents.FOUND_COMMAND)
-                .action(findCommand())
+                .event(OrderEvents.FIND_COMMAND)
+                .action(new Find().find())
 
 
                 .and()
@@ -52,26 +51,14 @@ public class MachineBuilder {
                 .and()
                 .withExternal()
                 .source(OrderStates.MORE).target(OrderStates.FIND)
-                .event(OrderEvents.FOUND_COMMAND)
+                .event(OrderEvents.FIND_COMMAND)
 
                 .and()
                 .withExternal()
                 .source(OrderStates.ALL).target(OrderStates.FIND)
-                .event(OrderEvents.FOUND_COMMAND);
+                .event(OrderEvents.FIND_COMMAND);
 
         return builder.build();
     }
-
-    private Action<OrderStates,OrderEvents> findCommand() {
-        return new Action<OrderStates,OrderEvents>() {
-            @Override
-            public void execute(StateContext<OrderStates,OrderEvents> context) {
-                // do something
-                System.out.println("Выполнение команды в action - > FIND");
-                System.out.println("context.getEvent().name() - " + context.getEvent().name());
-            }
-        };
-    }
-
 
 }

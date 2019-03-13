@@ -4,7 +4,7 @@ import com.javastream.service.SendTextMsg;
 import com.javastream.state_mashine.MachineBuilder;
 import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.javastream.util.MessegeTextUtil;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -21,7 +21,7 @@ public class VideoBot extends TelegramLongPollingBot {
 
     private StateMachine<OrderStates, OrderEvents> stateMachine;
 
-    public VideoBot(StateMachine<OrderStates, OrderEvents> stateMachine) throws Exception {
+    public VideoBot() throws Exception {
         this.stateMachine = new MachineBuilder().buildMachine();
         this.stateMachine.start();
     }
@@ -31,11 +31,20 @@ public class VideoBot extends TelegramLongPollingBot {
         Message message = update.getMessage();
         if (message != null && message.hasText()) {
             String messageText = message.getText();
-            // Команда find - поиск ссылок на видео с постерами по ключевым словам пользователя
 
+            MessegeTextUtil messegeTextUtil = new MessegeTextUtil(messageText);
+
+            // Передаем стейт машине событие, которое запросил пользователь
+            OrderEvents event = messegeTextUtil.getEvent();
+            stateMachine.sendEvent(event);
+            stateMachine.getExtendedState().getVariables().put("message", message);
+
+
+            System.out.println(stateMachine.getState().getId().name().toString());
+            executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- "+stateMachine.getState().getId().name().toString()+ "-- отработала"));
+
+/*
             if (messageText.contains("/start")) {
-                stateMachine.sendEvent(OrderEvents.START_COMMAND);
-                System.out.println(stateMachine.getState().getId().name().toString());
 
                 System.out.println("Команда -- start -- отработала");
                 executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- start -- отработала"));
@@ -63,6 +72,8 @@ public class VideoBot extends TelegramLongPollingBot {
                 System.out.println("Команда -- all -- отработала");
                 executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- all -- отработала"));
             }
+
+            */
         }
 
 
