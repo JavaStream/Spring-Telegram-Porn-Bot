@@ -23,44 +23,15 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<OrderS
     @Override
     public void configure(StateMachineStateConfigurer<OrderStates, OrderEvents> states) throws Exception {
         states.withStates()
-                .initial(OrderStates.FIND)
+                .initial(OrderStates.START)
+                .state(OrderStates.FIND)
                 .state(OrderStates.MORE)
-                .end(OrderStates.ALL);
+                .state(OrderStates.ALL);
     }
 
     @Override
     public void configure(StateMachineTransitionConfigurer<OrderStates, OrderEvents> transitions) throws Exception {
-        transitions.withExternal()
-                .source(OrderStates.START)
-                .target(OrderStates.FIND)
-                .event(OrderEvents.FOUND_COMMAND)
-
-
-                .and()
-                .withExternal()
-                .source(OrderStates.FIND)
-                .target(OrderStates.MORE)
-                .event(OrderEvents.MORE_COMMAND)
-                .action(findCommand())
-
-                .and()
-                .withExternal()
-                .source(OrderStates.MORE)
-                .target(OrderStates.ALL)
-                .event(OrderEvents.ALL_COMMAND);
-
-    }
-
-
-    private Action<OrderStates,OrderEvents> findCommand() {
-        return new Action<OrderStates,OrderEvents>() {
-
-            @Override
-            public void execute(StateContext<OrderStates,OrderEvents> context) {
-                // do something
-                System.out.println("Выполнение команды - > FIND");
-            }
-        };
+        transitions.withExternal();
     }
 
 

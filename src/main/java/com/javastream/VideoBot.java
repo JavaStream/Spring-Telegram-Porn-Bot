@@ -18,11 +18,12 @@ public class VideoBot extends TelegramLongPollingBot {
 
     private static final String BOT_NAME = "PornHunterbot";
     private static final String BOT_TOKEN = "660690556:AAGFTyOBivpOWWc_S87WUYU0BH9sQDqUP0M";
+
     private StateMachine<OrderStates, OrderEvents> stateMachine;
 
     public VideoBot(StateMachine<OrderStates, OrderEvents> stateMachine) throws Exception {
         this.stateMachine = new MachineBuilder().buildMachine();
-        stateMachine.start();
+        this.stateMachine.start();
     }
 
     @Override
@@ -32,22 +33,33 @@ public class VideoBot extends TelegramLongPollingBot {
             String messageText = message.getText();
             // Команда find - поиск ссылок на видео с постерами по ключевым словам пользователя
 
-            stateMachine.sendEvent(OrderEvents.FOUND_COMMAND);
+            if (messageText.contains("/start")) {
+                stateMachine.sendEvent(OrderEvents.START_COMMAND);
+                System.out.println(stateMachine.getState().getId().name().toString());
+
+                System.out.println("Команда -- start -- отработала");
+                executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- start -- отработала"));
+            }
+
 
             if (messageText.contains("/find")) {
-                stateMachine.sendEvent(OrderEvents.MORE_COMMAND);
+                stateMachine.sendEvent(OrderEvents.FOUND_COMMAND);
+                System.out.println(stateMachine.getState().getId().name().toString());
 
                 System.out.println("Команда -- find -- отработала");
                 executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- find -- отработала"));
             }
 
             if (messageText.contains("/more")) {
-                stateMachine.sendEvent(OrderEvents.ALL_COMMAND);
+                stateMachine.sendEvent(OrderEvents.MORE_COMMAND);
+                System.out.println(stateMachine.getState().getId().name().toString());
                 System.out.println("Команда -- more -- отработала");
                 executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- more -- отработала"));
             }
 
             if (messageText.contains("/all")) {
+                stateMachine.sendEvent(OrderEvents.ALL_COMMAND);
+                System.out.println(stateMachine.getState().getId().name().toString());
                 System.out.println("Команда -- all -- отработала");
                 executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- all -- отработала"));
             }

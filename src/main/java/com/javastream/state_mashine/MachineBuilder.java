@@ -28,6 +28,7 @@ public class MachineBuilder {
                 .event(OrderEvents.FOUND_COMMAND)
                 .action(findCommand())
 
+
                 .and()
                 .withExternal()
                 .source(OrderStates.FIND).target(OrderStates.MORE)
@@ -35,19 +36,39 @@ public class MachineBuilder {
 
                 .and()
                 .withExternal()
+                .source(OrderStates.FIND).target(OrderStates.START)
+                .event(OrderEvents.START_COMMAND)
+
+                .and()
+                .withExternal()
+                .source(OrderStates.FIND).target(OrderStates.ALL)
+                .event(OrderEvents.ALL_COMMAND)
+
+                .and()
+                .withExternal()
                 .source(OrderStates.MORE).target(OrderStates.ALL)
-                .event(OrderEvents.ALL_COMMAND);
+                .event(OrderEvents.ALL_COMMAND)
+
+                .and()
+                .withExternal()
+                .source(OrderStates.MORE).target(OrderStates.FIND)
+                .event(OrderEvents.FOUND_COMMAND)
+
+                .and()
+                .withExternal()
+                .source(OrderStates.ALL).target(OrderStates.FIND)
+                .event(OrderEvents.FOUND_COMMAND);
 
         return builder.build();
     }
 
     private Action<OrderStates,OrderEvents> findCommand() {
         return new Action<OrderStates,OrderEvents>() {
-
             @Override
             public void execute(StateContext<OrderStates,OrderEvents> context) {
                 // do something
-                System.out.println("Выполнение команды - > FIND");
+                System.out.println("Выполнение команды в action - > FIND");
+                System.out.println("context.getEvent().name() - " + context.getEvent().name());
             }
         };
     }
