@@ -22,8 +22,8 @@ public class VideoBot extends TelegramLongPollingBot {
     private StateMachine<OrderStates, OrderEvents> stateMachine;
 
     public VideoBot() throws Exception {
-        this.stateMachine = new MachineBuilder().buildMachine();
-        this.stateMachine.start();
+       this.stateMachine = new MachineBuilder().buildMachine();
+       this.stateMachine.start();
     }
 
     @Override
@@ -37,7 +37,7 @@ public class VideoBot extends TelegramLongPollingBot {
             // Передаем стейт машине событие, которое запросил пользователь
             OrderEvents event = messegeTextUtil.getEvent();
             stateMachine.sendEvent(event);
-            stateMachine.getExtendedState().getVariables().put("message", message);
+            //stateMachine.getExtendedState().getVariables().put("message", message);
 
 
             System.out.println(stateMachine.getState().getId().name().toString());
@@ -78,6 +78,7 @@ public class VideoBot extends TelegramLongPollingBot {
 
 
     }
+
 
     public void executeMessage(SendMessage sendMessage) {
         try {

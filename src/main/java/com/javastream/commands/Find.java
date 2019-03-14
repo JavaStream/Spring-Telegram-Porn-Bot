@@ -40,7 +40,7 @@ public class Find {
         this.arrMP4links = new ArrayList<String>();
     }
 
-
+/*
     public Action<OrderStates,OrderEvents> find() {
         return new Action<OrderStates,OrderEvents>() {
             @Override
@@ -48,11 +48,12 @@ public class Find {
                 // do something
                 System.out.println("Выполнение команды в action - > FIND");
                 System.out.println("context.getEvent().name() - " + context.getEvent().name());
-                findCommand(context.getExtendedState().get("message", Message.class));
+                //findCommand(context.getExtendedState().get("message", Message.class));
             }
         };
     }
 
+*/
 
     // Метод отвечает за наполнение массива заголовков, ссылок на видео, ссылок на картинки и mp4
     public void setArraysData(Message message) {

@@ -25,7 +25,7 @@ public class MachineBuilder {
                 .withExternal()
                 .source(OrderStates.START).target(OrderStates.FIND)
                 .event(OrderEvents.FIND_COMMAND)
-                .action(new Find().find())
+               // .action(new Find().find())
 
 
                 .and()
