@@ -40,20 +40,10 @@ public class Find {
         this.arrMP4links = new ArrayList<String>();
     }
 
-/*
-    public Action<OrderStates,OrderEvents> find() {
-        return new Action<OrderStates,OrderEvents>() {
-            @Override
-            public void execute(StateContext<OrderStates,OrderEvents> context) {
-                // do something
-                System.out.println("Выполнение команды в action - > FIND");
-                System.out.println("context.getEvent().name() - " + context.getEvent().name());
-                //findCommand(context.getExtendedState().get("message", Message.class));
-            }
-        };
-    }
 
-*/
+
+
+
 
     // Метод отвечает за наполнение массива заголовков, ссылок на видео, ссылок на картинки и mp4
     public void setArraysData(Message message) {
@@ -67,7 +57,7 @@ public class Find {
         // Поисковый запрос без /http. По этим поисковым словам будем выдергивать видео из поиска сайта с видосами
         String messageText = message.getText();
         String searchingMessage = messageText.replaceAll("/find", "");
-        System.out.println(searchingMessage);
+        System.out.println("1. searchingMessage - " + searchingMessage);
         try {
             arrayHeaders = new HeadersSearch().getHeadersOfVideos(searchingMessage);
             arrayHrefs = new HrefsWebpagesSearch().getHrefsOfVideos(searchingMessage);
