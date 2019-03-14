@@ -1,17 +1,17 @@
 package com.javastream.commands;
 
+import com.javastream.VideoBot;
 import com.javastream.search.HeadersSearch;
 import com.javastream.search.HrefsWebpagesSearch;
 import com.javastream.search.ImagesSearch;
 import com.javastream.search.MP4Search;
 import com.javastream.service.DownloaderMP4;
+import com.javastream.service.SendTextMsg;
 import com.javastream.service.SendingPhoto;
-import com.javastream.states.OrderEvents;
-import com.javastream.states.OrderStates;
-import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.action.Action;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,13 +40,17 @@ public class Find {
         this.arrMP4links = new ArrayList<String>();
     }
 
+    @Autowired
+    private VideoBot videoBot;
 
-
-
-
+    @Autowired
+    private SendTextMsg sendTextMsg;
 
     // Метод отвечает за наполнение массива заголовков, ссылок на видео, ссылок на картинки и mp4
     public void setArraysData(Message message) {
+
+        this.videoBot.executeMessage(this.sendTextMsg.sendTextMsg(message, "1111111111 -- ТЕСТ ПРОЙДЕН!"));
+        System.out.println("1111111111 -- ТЕСТ ПРОЙДЕН!");
 
         // Очищаем массивы с заголовками, фото и ссылками перед новым поисковым запросом
         if (!arrayHeaders.isEmpty())   { arrayHeaders.clear(); }
@@ -63,13 +67,15 @@ public class Find {
             arrayHrefs = new HrefsWebpagesSearch().getHrefsOfVideos(searchingMessage);
             arrUrlImg = new ImagesSearch().getImages(searchingMessage);
             arrMP4links = new MP4Search().getHrefsOfMP4(searchingMessage);
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     // Возвращает массив объектов SendingPhoto, которые в классе Bot могут быть выполнены командой execute
-    public ArrayList<SendPhoto> findCommand(Message message)  {
+    public ArrayList<SendPhoto> findCommand(Message message) throws TelegramApiException {
 
         ArrayList<SendPhoto> arrayListSendPhoto = new ArrayList<SendPhoto>();
 

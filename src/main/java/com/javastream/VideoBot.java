@@ -8,6 +8,7 @@ import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
 import com.javastream.util.MessegeTextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -52,34 +53,8 @@ public class VideoBot extends TelegramLongPollingBot {
 
                 // Передаем стейт машине событие, которое запросил пользователь
                 OrderEvents event = messegeTextUtil.getEvent();
+                stateMachine.getExtendedState().getVariables().put("message", message);
                 stateMachine.sendEvent(event);
-/*
-                if (stateMachine.getState().getId().name().equals("START")) {
-
-                    System.out.println("Добро пожаловать в чат-бот!");
-                }
-
-                if (stateMachine.getState().getId().name().equals("FIND")) {
-                    logger.info("200. Current State -> {}", stateMachine.getState().getId().name());
-                    new StateFinder().getMethodOfEvent( stateMachine.getState().getId().name(), message);
-                } else {
-                    System.out.println("Другая команда выполняется");
-                }
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /*
             if (stateMachine.getState().getId().name().toString().equals("FIND")) {
@@ -92,7 +67,6 @@ public class VideoBot extends TelegramLongPollingBot {
             System.out.println("2.stateMachine.getState().getId().name().toString()" + stateMachine.getState().getId().name().toString());
             executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- "+stateMachine.getState().getId().name().toString()+ "-- отработала"));
 */
-
             /*
             if (stateMachine.getState().getId().name().toString() == "FIND") {
 
@@ -105,16 +79,14 @@ public class VideoBot extends TelegramLongPollingBot {
         }
 
 
-
     }
+
 
 
     @PostConstruct
     public void start() {
         logger.info("username: {}, token: {}", username, token);
     }
-
-
 
 
     public void executeMessage(SendMessage sendMessage) {
@@ -134,4 +106,10 @@ public class VideoBot extends TelegramLongPollingBot {
     public String getBotToken() {
         return token;
     }
+
+
 }
+
+
+
+
