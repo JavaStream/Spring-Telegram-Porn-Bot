@@ -1,23 +1,25 @@
 package com.javastream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import com.javastream.model.Sender;
+import com.javastream.service.SendTextMsg;
 import com.javastream.state_mashine.MachineBuilder;
 import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
 import com.javastream.util.MessegeTextUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 
 @Component
 public class VideoBot extends TelegramLongPollingBot {
@@ -31,10 +33,6 @@ public class VideoBot extends TelegramLongPollingBot {
     private String username;
 
     private StateMachine<OrderStates, OrderEvents> stateMachine;
-
-    @Autowired
-    private MachineBuilder machineBuilder;
-
 
     public VideoBot() throws Exception {
        this.stateMachine = new MachineBuilder().buildMachine();
@@ -50,43 +48,28 @@ public class VideoBot extends TelegramLongPollingBot {
 
                 MessegeTextUtil messegeTextUtil = new MessegeTextUtil(messageText);
 
-
                 // Передаем стейт машине событие, которое запросил пользователь
                 OrderEvents event = messegeTextUtil.getEvent();
                 stateMachine.getExtendedState().getVariables().put("message", message);
                 stateMachine.sendEvent(event);
 
-/*
-            if (stateMachine.getState().getId().name().toString().equals("FIND")) {
-                System.out.println("0.1.put message ");
-                stateMachine.getExtendedState().getVariables().put("message", message);
-                System.out.println("0.2.put message ");
+                /* Если статический класс Sender не содержит массив типа SendPhoto(), то выполнение
+                *  передать методу executeMessage(SendMessage sendMessage), в противном случае должен
+                *  быть вызван метод executeMessage(ArrayList<SendPhoto> photoLis)
+                */
+                if (Sender.getExsistArray() == false) {
+                    SendMessage sendMessage = new SendTextMsg().sendTextMsg(Sender.getMessage(), Sender.getText());
+                    executeMessage(sendMessage);
+                } else {
+                    executeMessage(Sender.getArrayListSendPhoto());
+                }
             }
-
-            System.out.println("1.stateMachine.getState().getId().name().toString() - " + stateMachine.getState().getId().name().toString());
-            System.out.println("2.stateMachine.getState().getId().name().toString()" + stateMachine.getState().getId().name().toString());
-            executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- "+stateMachine.getState().getId().name().toString()+ "-- отработала"));
-*/
-            /*
-            if (stateMachine.getState().getId().name().toString() == "FIND") {
-
-                this.machineBuilder.find();
-            }
-
-            */
-            }
-
         }
-
-
     }
 
 
 
-    @PostConstruct
-    public void start() {
-        logger.info("username: {}, token: {}", username, token);
-    }
+
 
 
     public void executeMessage(SendMessage sendMessage) {
@@ -97,6 +80,17 @@ public class VideoBot extends TelegramLongPollingBot {
         }
     }
 
+
+    public void executeMessage(ArrayList<SendPhoto> photoList) {
+        try {
+            for(SendPhoto sendPhoto : photoList)
+                execute(sendPhoto);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     @Override
     public String getBotUsername() {
         return username;
@@ -105,6 +99,11 @@ public class VideoBot extends TelegramLongPollingBot {
     @Override
     public String getBotToken() {
         return token;
+    }
+
+    @PostConstruct
+    public void start() {
+        logger.info("username: {}, token: {}", username, token);
     }
 
 
