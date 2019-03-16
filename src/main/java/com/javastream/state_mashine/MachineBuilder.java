@@ -1,12 +1,11 @@
 package com.javastream.state_mashine;
 
-import com.javastream.Print;
 import com.javastream.VideoBot;
-import com.javastream.commands.Find;
 import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.StateMachineBuilder;
@@ -14,12 +13,15 @@ import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.EnumSet;
 
 @Component
 public class MachineBuilder {
+
+    @Autowired
+    private VideoBot videoBot;
 
     private static final Logger logger = LoggerFactory.getLogger(VideoBot.class);
 
@@ -114,17 +116,12 @@ public class MachineBuilder {
                 logger.info("200. Current State -> {}", context.getEvent().name());
 
                 Message message = context.getExtendedState().get("message", Message.class);
+                Update update = context.getExtendedState().get("update", Update.class);
                 System.out.println(message.getText());
                 logger.info("201. message -> {}", message);
+                //new BotSender().excecuteTest(new SendTextMsg().sendTextMsg(message, "333333333"));
+                //new AnonymizerCo().execute(message, "222 TESTTTTTT!!!!");
 
-                /*
-                try {
-                    new Find().findCommand(message);
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
-                */
-               //new Print().printing(message);
             }
         };
     }

@@ -54,7 +54,16 @@ public class VideoBot extends TelegramLongPollingBot {
                 // Передаем стейт машине событие, которое запросил пользователь
                 OrderEvents event = messegeTextUtil.getEvent();
                 stateMachine.getExtendedState().getVariables().put("message", message);
+                stateMachine.getExtendedState().getVariables().put("update", update);
                 stateMachine.sendEvent(event);
+
+
+
+
+
+
+
+
 
 /*
             if (stateMachine.getState().getId().name().toString().equals("FIND")) {
@@ -83,6 +92,7 @@ public class VideoBot extends TelegramLongPollingBot {
 
 
 
+
     @PostConstruct
     public void start() {
         logger.info("username: {}, token: {}", username, token);
@@ -95,6 +105,13 @@ public class VideoBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+    }
+
+
+    public void executeTest(String text) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setText(text);
+        executeMessage(sendMessage);
     }
 
     @Override
