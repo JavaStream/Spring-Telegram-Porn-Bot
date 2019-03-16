@@ -2,6 +2,7 @@ package com.javastream.state_mashine;
 
 import com.javastream.VideoBot;
 import com.javastream.commands.Find;
+import com.javastream.commands.MoreSelect;
 import com.javastream.model.Sender;
 import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
@@ -15,12 +16,18 @@ import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.ArrayList;
 import java.util.EnumSet;
 
 @Component
 public class MachineBuilder {
 
     private Sender sender;
+    ArrayList<String> arrayHeaders;
+    ArrayList<String> arrayHrefs;
+    ArrayList<String> arrUrlImg;
+    ArrayList<String> arrMP4links;
 
     private static final Logger logger = LoggerFactory.getLogger(VideoBot.class);
 
@@ -60,6 +67,7 @@ public class MachineBuilder {
                 .withExternal()
                 .source(OrderStates.FIND).target(OrderStates.MORE)
                 .event(OrderEvents.MORE_COMMAND)
+                .action(more())
 
                 // FIND -> START
                 .and()
@@ -94,6 +102,26 @@ public class MachineBuilder {
         return builder.build();
     }
 
+    private Action<OrderStates,OrderEvents> more() {
+        return new Action<OrderStates,OrderEvents>() {
+            @Override
+            public void execute(StateContext<OrderStates,OrderEvents> context) {
+                // More send video. It calls MoreSelect Command.
+                logger.info("300. Current State -> {}", context.getEvent().name());
+
+                Message message = context.getExtendedState().get("message", Message.class);
+
+                logger.info("301. More sending -> {}", message.getText());
+
+                    sender.setVideos(new MoreSelect().outputMore(message, arrayHeaders, arrayHrefs, arrUrlImg, arrMP4links, 5));
+                    sender.setText(null);
+                    sender.setMessage(message);
+                    sender.setExsistArray(true);
+                    sender.setArrayListSendPhoto(null);
+
+            }
+        };
+    }
 
 
     public Action<OrderStates,OrderEvents> start() {
@@ -123,13 +151,19 @@ public class MachineBuilder {
         return new Action<OrderStates,OrderEvents>() {
             @Override
             public void execute(StateContext<OrderStates,OrderEvents> context) {
-                // do something
+                // FIND Method
                 logger.info("200. Current State -> {}", context.getEvent().name());
 
                 Message message = context.getExtendedState().get("message", Message.class);
 
                 logger.info("201. Serching for -> {}", message.getText());
                 try {
+                    Find find = new Find();
+                    find.setArraysData(message);
+                    arrayHeaders = find.getArrayHeaders();
+                    arrayHrefs = find.getArrayHrefs();
+                    arrUrlImg = find.getArrUrlImg();
+                    arrMP4links = find.getArrMP4links();
                     sender.setArrayListSendPhoto(new Find().findCommand(message));
                     sender.setText(null);
                     sender.setMessage(message);

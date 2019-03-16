@@ -1,7 +1,9 @@
 package com.javastream;
 
 import com.javastream.model.Sender;
+import com.javastream.model.Videos;
 import com.javastream.service.SendTextMsg;
+import com.javastream.service.SendingPhoto;
 import com.javastream.state_mashine.MachineBuilder;
 import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
@@ -62,14 +64,28 @@ public class VideoBot extends TelegramLongPollingBot {
                 if (Sender.getExsistArray() == false) {
                     SendMessage sendMessage = new SendTextMsg().sendTextMsg(Sender.getMessage(), Sender.getText());
                     executeMessage(sendMessage);
-                } else {
+                }
+                else if (Sender.getExsistArray() == true)  {
                     executeMessage(Sender.getArrayListSendPhoto());
                 }
+                else if ((Sender.getExsistArray() == true) | (Sender.getVideos() != null)) {
+                    executeMessage(message, Sender.getVideos());
+                }
+
 
             }
         }
     }
 
+    private void executeMessage(Message message, Videos videos) {
+        for (int i = 0; i < videos.getArrayCaptions().size(); i++) {
+            try {
+                execute(new SendingPhoto().sendPhoto(message, videos.getArrayCaptions().get(i), videos.getArrayHref().get(i), videos.getArrUrlImg().get(i)));
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 
     public void executeMessage(SendMessage sendMessage) {

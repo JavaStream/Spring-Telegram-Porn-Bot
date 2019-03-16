@@ -4,6 +4,7 @@ import com.javastream.service.SendTextMsg;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Video;
 
 import java.util.ArrayList;
 
@@ -14,6 +15,7 @@ public class Sender {
     private static Message message;
     private static ArrayList<SendPhoto> arrayListSendPhoto;
     private static boolean exsistArray;
+    private static Videos videos;
 
     public Sender() {
 
@@ -57,5 +59,13 @@ public class Sender {
 
     public static void setExsistArray(boolean isExsistArray) {
         Sender.exsistArray = isExsistArray;
+    }
+
+    public static Videos getVideos() {
+        return videos;
+    }
+
+    public static void setVideos(Videos videos) {
+        Sender.videos = videos;
     }
 }
