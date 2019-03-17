@@ -6,6 +6,7 @@ import com.javastream.search.ImagesSearch;
 import com.javastream.search.MP4Search;
 import com.javastream.service.DownloaderMP4;
 import com.javastream.service.SendingPhoto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;

@@ -13,6 +13,8 @@ import java.util.ArrayList;
 /**
  * Поиск ЗАГОЛОВКОВ к видео (названия роликов)
  */
+
+
 public class HeadersSearch {
 
     private String url;               // базовый url сайта, прописан в service.Properties

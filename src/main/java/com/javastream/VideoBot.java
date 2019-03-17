@@ -57,6 +57,7 @@ public class VideoBot extends TelegramLongPollingBot {
                 *  передать методу executeMessage(SendMessage sendMessage), в противном случае должен
                 *  быть вызван метод executeMessage(ArrayList<SendPhoto> photoLis)
                 */
+
                 if (Sender.getExsistArray() == false) {
                     SendMessage sendMessage = new SendTextMsg().sendTextMsg(Sender.getMessage(), Sender.getText());
                     executeMessage(sendMessage);

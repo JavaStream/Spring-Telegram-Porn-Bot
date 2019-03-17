@@ -64,8 +64,8 @@ public class MP4Search   {
             Elements element = mp4.select("img");
             String hf = element.attr("data-src");
             arrJPG.add(hf);
-            //System.out.println(element);
-            System.out.println("JPEG для переделки - " + hf);
+
+            //System.out.println("JPEG для переделки - " + hf);
 
             StringBuilder sb = new StringBuilder();
             sb.append(hf);
