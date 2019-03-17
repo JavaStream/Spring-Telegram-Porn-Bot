@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class MoreSelect {
 
     int more = 0;
-    int countOfVideo = Properties.NUMBER_OF_VIDEOS; // кол-во роликов на запрос /more от пользователя
+    int countOfVideo = Properties.NUMBER_OF_VIDEOS_MORE; // кол-во роликов на запрос /more от пользователя
     private Videos videos;
 
     public MoreSelect() {

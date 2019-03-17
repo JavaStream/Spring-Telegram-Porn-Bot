@@ -1,7 +1,9 @@
 package com.javastream;
 
 import com.javastream.model.Sender;
+import com.javastream.model.Videos;
 import com.javastream.service.SendTextMsg;
+import com.javastream.service.SendingPhoto;
 import com.javastream.state_mashine.MachineBuilder;
 import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
@@ -51,26 +53,41 @@ public class VideoBot extends TelegramLongPollingBot {
                 // Передаем стейт машине событие, которое запросил пользователь
                 OrderEvents event = messegeTextUtil.getEvent();
                 stateMachine.getExtendedState().getVariables().put("message", message);
+                stateMachine.getExtendedState().getVariables().put("update", update);
                 stateMachine.sendEvent(event);
+
 
                 /* Если статический класс Sender не содержит массив типа SendPhoto(), то выполнение
                 *  передать методу executeMessage(SendMessage sendMessage), в противном случае должен
                 *  быть вызван метод executeMessage(ArrayList<SendPhoto> photoLis)
+                *  (!) Попробовать реализовать без блока IF ELSE за счет перегрузки метода executeMessage()
                 */
 
-                if (Sender.getExsistArray() == false) {
+                if (Sender.getExcecuteMethod().equals("sendMessage")) {
                     SendMessage sendMessage = new SendTextMsg().sendTextMsg(Sender.getMessage(), Sender.getText());
                     executeMessage(sendMessage);
-                } else {
+                }
+                else if (Sender.getExcecuteMethod().equals("arrayListSendPhoto"))  {
                     executeMessage(Sender.getArrayListSendPhoto());
                 }
+                else if (Sender.getExcecuteMethod().equals("arrayVideo")) {
+                    executeMessage(message, Sender.getVideos());
+                }
+
+
             }
         }
     }
 
-
-
-
+    private void executeMessage(Message message, Videos videos) {
+        for (int i = 0; i < videos.getArrayCaptions().size(); i++) {
+            try {
+                execute(new SendingPhoto().sendPhoto(message, videos.getArrayCaptions().get(i), videos.getArrayHref().get(i), videos.getArrUrlImg().get(i)));
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 
     public void executeMessage(SendMessage sendMessage) {
@@ -81,7 +98,6 @@ public class VideoBot extends TelegramLongPollingBot {
         }
     }
 
-
     public void executeMessage(ArrayList<SendPhoto> photoList) {
         try {
             for(SendPhoto sendPhoto : photoList)
@@ -90,7 +106,6 @@ public class VideoBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
 
     @Override
     public String getBotUsername() {

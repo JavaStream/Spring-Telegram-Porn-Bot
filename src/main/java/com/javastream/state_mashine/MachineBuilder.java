@@ -1,8 +1,9 @@
 package com.javastream.state_mashine;
 
-
 import com.javastream.VideoBot;
+import com.javastream.service.Properties;
 import com.javastream.commands.Find;
+import com.javastream.commands.MoreSelect;
 import com.javastream.model.Sender;
 import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
@@ -17,13 +18,18 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 
 @Component
 public class MachineBuilder {
 
-
     private Sender sender;
+    ArrayList<String> arrayHeaders;
+    ArrayList<String> arrayHrefs;
+    ArrayList<String> arrUrlImg;
+    ArrayList<String> arrMP4links;
+    private int lastIdOfVideo = Properties.NUMBER_OF_VIDEOS_MORE;
 
     private static final Logger logger = LoggerFactory.getLogger(VideoBot.class);
 
@@ -58,17 +64,40 @@ public class MachineBuilder {
                 .event(OrderEvents.FIND_COMMAND)
                 .action(find())
 
-                // FIND -> MORE
-                .and()
-                .withExternal()
-                .source(OrderStates.FIND).target(OrderStates.MORE)
-                .event(OrderEvents.MORE_COMMAND)
-
                 // FIND -> START
                 .and()
                 .withExternal()
                 .source(OrderStates.FIND).target(OrderStates.START)
                 .event(OrderEvents.START_COMMAND)
+                .action(start())
+
+                // FIND -> MORE
+                .and()
+                .withExternal()
+                .source(OrderStates.FIND).target(OrderStates.MORE)
+                .event(OrderEvents.MORE_COMMAND)
+                .action(more())
+
+                // MORE -> FIND
+                .and()
+                .withExternal()
+                .source(OrderStates.MORE).target(OrderStates.FIND)
+                .event(OrderEvents.FIND_COMMAND)
+                .action(find())
+
+                // MORE -> MORE
+                .and()
+                .withExternal()
+                .source(OrderStates.MORE).target(OrderStates.MORE)
+                .event(OrderEvents.MORE_COMMAND)
+                .action(more())
+
+                // MORE -> START
+                .and()
+                .withExternal()
+                .source(OrderStates.MORE).target(OrderStates.START)
+                .event(OrderEvents.START_COMMAND)
+                .action(start())
 
                 // FIND -> ALL
                 .and()
@@ -82,12 +111,6 @@ public class MachineBuilder {
                 .source(OrderStates.MORE).target(OrderStates.ALL)
                 .event(OrderEvents.ALL_COMMAND)
 
-                // MORE -> FIND
-                .and()
-                .withExternal()
-                .source(OrderStates.MORE).target(OrderStates.FIND)
-                .event(OrderEvents.FIND_COMMAND)
-
                 // ALL -> FIND
                 .and()
                 .withExternal()
@@ -97,6 +120,24 @@ public class MachineBuilder {
         return builder.build();
     }
 
+    private Action<OrderStates,OrderEvents> more() {
+        return new Action<OrderStates,OrderEvents>() {
+            @Override
+            public void execute(StateContext<OrderStates,OrderEvents> context) {
+                // More send video. It calls MoreSelect Command.
+                logger.info("300. Current State -> {}", context.getEvent().name());
+
+                Message message = context.getExtendedState().get("message", Message.class);
+
+                logger.info("301. More sending -> {}", message.getText());
+
+                sender.setExcecuteMethod("arrayVideo");
+                sender.setVideos(new MoreSelect().outputMore(message, arrayHeaders, arrayHrefs, arrUrlImg, arrMP4links, lastIdOfVideo));
+                sender.setMessage(message);
+                lastIdOfVideo += lastIdOfVideo;
+            }
+        };
+    }
 
 
     public Action<OrderStates,OrderEvents> start() {
@@ -110,10 +151,10 @@ public class MachineBuilder {
                 logger.info("100. Current State -> {}", context.getEvent().name());
                 Message message = context.getExtendedState().get("message", Message.class);
 
+                sender.setExcecuteMethod("sendMessage");
                 sender.setText("Для поиска видео задайте команду /find и поисковый запрос. Например, /find hot girls или /find горячие девчонки\"");
                 sender.setMessage(message);
-                sender.setArrayListSendPhoto(null);
-                sender.setExsistArray(false);
+
             }
         };
     }
@@ -126,19 +167,27 @@ public class MachineBuilder {
         return new Action<OrderStates,OrderEvents>() {
             @Override
             public void execute(StateContext<OrderStates,OrderEvents> context) {
-                // do something
+                // FIND Method
                 logger.info("200. Current State -> {}", context.getEvent().name());
 
                 Message message = context.getExtendedState().get("message", Message.class);
+
                 logger.info("201. Serching for -> {}", message.getText());
+
                 try {
+                    Find find = new Find();
+                    find.setArraysData(message);
+                    arrayHeaders = find.getArrayHeaders();
+                    arrayHrefs = find.getArrayHrefs();
+                    arrUrlImg = find.getArrUrlImg();
+                    arrMP4links = find.getArrMP4links();
+                    sender.setExcecuteMethod("arrayListSendPhoto");
                     sender.setArrayListSendPhoto(new Find().findCommand(message));
-                    sender.setText(null);
                     sender.setMessage(message);
-                    sender.setExsistArray(true);
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
+
             }
         };
     }
