@@ -3,8 +3,6 @@ package com.javastream.state_mashine;
 import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.statemachine.StateContext;
-import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -17,7 +15,7 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<OrderS
 
     @Override
     public void configure(StateMachineConfigurationConfigurer<OrderStates, OrderEvents> config) throws Exception {
-        config.withConfiguration().autoStartup(true); // Старт стейтмашины при создании новой машины
+        config.withConfiguration().autoStartup(false); // Старт стейтмашины при создании новой машины
     }
 
     @Override
@@ -33,6 +31,7 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<OrderS
     public void configure(StateMachineTransitionConfigurer<OrderStates, OrderEvents> transitions) throws Exception {
         transitions.withExternal();
     }
+
 
 
 }

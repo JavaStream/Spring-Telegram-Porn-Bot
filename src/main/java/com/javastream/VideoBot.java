@@ -1,72 +1,108 @@
 package com.javastream;
 
-import com.javastream.service.SendTextMsg;
+import com.javastream.model.Sender;
+import com.javastream.model.Videos;
+import com.javastream.service.SendingPhoto;
 import com.javastream.state_mashine.MachineBuilder;
 import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
+import com.javastream.util.MessegeTextUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.Objects;
+
 @Component
 public class VideoBot extends TelegramLongPollingBot {
 
-    private static final String BOT_NAME = "PornHunterbot";
-    private static final String BOT_TOKEN = "660690556:AAGFTyOBivpOWWc_S87WUYU0BH9sQDqUP0M";
+    private static final Logger logger = LoggerFactory.getLogger(VideoBot.class);
 
     private StateMachine<OrderStates, OrderEvents> stateMachine;
 
-    public VideoBot(StateMachine<OrderStates, OrderEvents> stateMachine) throws Exception {
-        this.stateMachine = new MachineBuilder().buildMachine();
-        this.stateMachine.start();
+    @Autowired
+    private MachineBuilder machineBuilder;
+
+    @Autowired
+    MessegeTextUtil messegeTextUtil;
+
+    @Value("${bot.token}")
+    private String token;
+
+    @Value("${bot.username}")
+    private String username;
+
+
+
+    public VideoBot() {
+    }
+
+    public void startStateMachine() throws Exception {
+        stateMachine = machineBuilder.buildMachine();
+        stateMachine.start();
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        Message message = update.getMessage();
-        if (message != null && message.hasText()) {
-            String messageText = message.getText();
-            // Команда find - поиск ссылок на видео с постерами по ключевым словам пользователя
+        if (update.hasMessage()) {
+            Message message = update.getMessage();
+            if (message != null && message.hasText()) {
+                String messageText = message.getText();
 
-            if (messageText.contains("/start")) {
-                stateMachine.sendEvent(OrderEvents.START_COMMAND);
-                System.out.println(stateMachine.getState().getId().name().toString());
-
-                System.out.println("Команда -- start -- отработала");
-                executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- start -- отработала"));
-            }
+                // Передаем стейт машине событие, которое запросил пользователь и обьект message
+                OrderEvents event = messegeTextUtil.getEvent(messageText);
+                stateMachine.getExtendedState().getVariables().put("message", message);
+                stateMachine.sendEvent(event);
 
 
-            if (messageText.contains("/find")) {
-                stateMachine.sendEvent(OrderEvents.FOUND_COMMAND);
-                System.out.println(stateMachine.getState().getId().name().toString());
+                /* Если статический класс Sender не содержит массив типа SendPhoto(), то выполнение
+                *  передать методу executeMessage(SendMessage sendMessage), в противном случае должен
+                *  быть вызван метод executeMessage(ArrayList<SendPhoto> photoLis)
+                *  (!) Попробовать реализовать без блока IF ELSE за счет перегрузки метода executeMessage()
+                */
 
-                System.out.println("Команда -- find -- отработала");
-                executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- find -- отработала"));
-            }
 
-            if (messageText.contains("/more")) {
-                stateMachine.sendEvent(OrderEvents.MORE_COMMAND);
-                System.out.println(stateMachine.getState().getId().name().toString());
-                System.out.println("Команда -- more -- отработала");
-                executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- more -- отработала"));
-            }
+                if (Sender.getExcecuteMethod().equals("sendMessage")) {
+                    executeMessage(Sender.getSendMessage());
+                }
+                else if (Sender.getExcecuteMethod().equals("arrayListSendPhoto"))  {
+                    executeMessage(Sender.getArrayListSendPhoto());
+                }
+                else if (Sender.getExcecuteMethod().equals("arrayVideo")) {
+                    System.out.println("arrayVideo");
+                    System.out.println("getArrUrlImg().size() - " + Sender.getVideos().getArrUrlImg().size());
+                    System.out.println("getArrayCaptions().size() - " + Sender.getVideos().getArrayCaptions().size());
+                    System.out.println("getArrayHref().size() - " + Sender.getVideos().getArrayHref().size());
+                    System.out.println("getUrlMP4().size() - " + Sender.getVideos().getUrlMP4().size());
+                    executeMessage(Sender.getVideos());
+                }
 
-            if (messageText.contains("/all")) {
-                stateMachine.sendEvent(OrderEvents.ALL_COMMAND);
-                System.out.println(stateMachine.getState().getId().name().toString());
-                System.out.println("Команда -- all -- отработала");
-                executeMessage(new SendTextMsg().sendTextMsg(message, "Команда -- all -- отработала"));
+
             }
         }
-
-
     }
+
+    private void executeMessage(Videos videos) {
+        for (int i = 0; i < videos.getArrayCaptions().size(); i++) {
+            try {
+                execute(new SendingPhoto().sendPhoto(videos.getMessage().get(i), videos.getArrayCaptions().get(i), videos.getArrayHref().get(i), videos.getArrUrlImg().get(i)));
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     public void executeMessage(SendMessage sendMessage) {
         try {
@@ -76,13 +112,35 @@ public class VideoBot extends TelegramLongPollingBot {
         }
     }
 
+    public void executeMessage(ArrayList<SendPhoto> photoList) {
+        try {
+            for(SendPhoto sendPhoto : photoList)
+                execute(sendPhoto);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public String getBotUsername() {
-        return BOT_NAME;
+        return username;
     }
 
     @Override
     public String getBotToken() {
-        return BOT_TOKEN;
+        return token;
     }
+
+
+    @PostConstruct
+    public void start() throws Exception {
+        startStateMachine();
+        logger.info("username: {}, token: {}", username, token);
+    }
+
+
 }
+
+
+
+
