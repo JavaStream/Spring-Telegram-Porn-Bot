@@ -9,6 +9,7 @@ import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.action.Action;
@@ -30,6 +31,7 @@ public class MachineBuilder {
     ArrayList<String> arrUrlImg;
     ArrayList<String> arrMP4links;
     private int lastIdOfVideo = Properties.NUMBER_OF_VIDEOS_MORE;
+
 
     private static final Logger logger = LoggerFactory.getLogger(VideoBot.class);
 
@@ -182,7 +184,7 @@ public class MachineBuilder {
                     arrUrlImg = find.getArrUrlImg();
                     arrMP4links = find.getArrMP4links();
                     sender.setExcecuteMethod("arrayListSendPhoto");
-                    sender.setArrayListSendPhoto(new Find().findCommand(message));
+                    sender.setArrayListSendPhoto(find.findCommand(message));
                     sender.setMessage(message);
                 } catch (TelegramApiException e) {
                     e.printStackTrace();

@@ -43,7 +43,7 @@ public class ImagesSearch {
     // Метод парсинга веб-страницы с помощью библиотеки JSOUP
     public ArrayList<String> parseDocument(String serchMsg) throws IOException {
 
-        this.serchMsgFormated = new SearchingMessage(serchMsg).splitMessage();
+        this.serchMsgFormated = new SearchingMessage().splitMessage(serchMsg);
         this.url = Properties.URL;
         this.urlSearch = url+ "/search/" +serchMsgFormated;
 

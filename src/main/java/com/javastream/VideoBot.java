@@ -10,6 +10,7 @@ import com.javastream.states.OrderStates;
 import com.javastream.util.MessegeTextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,12 @@ import java.util.ArrayList;
 public class VideoBot extends TelegramLongPollingBot {
 
     private static final Logger logger = LoggerFactory.getLogger(VideoBot.class);
+
+    @Autowired
+    MessegeTextUtil messegeTextUtil;
+
+    @Autowired
+    Test test;
 
     @Value("${bot.token}")
     private String token;
@@ -55,14 +62,11 @@ public class VideoBot extends TelegramLongPollingBot {
             if (message != null && message.hasText()) {
                 String messageText = message.getText();
 
-                MessegeTextUtil messegeTextUtil = new MessegeTextUtil(messageText);
-
-                // Передаем стейт машине событие, которое запросил пользователь
-                OrderEvents event = messegeTextUtil.getEvent();
+                // Передаем стейт машине событие, которое запросил пользователь и обьект message
+                OrderEvents event = messegeTextUtil.getEvent(messageText);
                 stateMachine.getExtendedState().getVariables().put("message", message);
-                stateMachine.getExtendedState().getVariables().put("update", update);
                 stateMachine.sendEvent(event);
-
+                System.out.println(test.print("TTTTTTTTTTTTTTTTTTT"));
 
                 /* Если статический класс Sender не содержит массив типа SendPhoto(), то выполнение
                 *  передать методу executeMessage(SendMessage sendMessage), в противном случае должен
@@ -73,6 +77,8 @@ public class VideoBot extends TelegramLongPollingBot {
                 if (Sender.getExcecuteMethod().equals("sendMessage")) {
                     SendMessage sendMessage = new SendTextMsg().sendTextMsg(Sender.getMessage(), Sender.getText());
                     executeMessage(sendMessage);
+
+
                 }
                 else if (Sender.getExcecuteMethod().equals("arrayListSendPhoto"))  {
                     executeMessage(Sender.getArrayListSendPhoto());
@@ -123,6 +129,7 @@ public class VideoBot extends TelegramLongPollingBot {
     public String getBotToken() {
         return token;
     }
+
 
     @PostConstruct
     public void start() {

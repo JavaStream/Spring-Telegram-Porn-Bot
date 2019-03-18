@@ -23,7 +23,7 @@ public class MP4Search   {
     // ОСНОВНОЙ МЕТОД по получению ссылок на ролики MP4
     public ArrayList<String> getHrefsOfMP4(String serchMsg) throws IOException {
 
-        this.serchMsgFormated = new SearchingMessage(serchMsg).splitMessage();
+        this.serchMsgFormated = new SearchingMessage().splitMessage(serchMsg);
         this.url = Properties.URL;
         this.urlSearch = url+ "/search/" +serchMsgFormated;
 

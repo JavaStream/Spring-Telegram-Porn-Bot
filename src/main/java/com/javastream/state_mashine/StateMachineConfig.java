@@ -15,7 +15,7 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<OrderS
 
     @Override
     public void configure(StateMachineConfigurationConfigurer<OrderStates, OrderEvents> config) throws Exception {
-        config.withConfiguration().autoStartup(true); // Старт стейтмашины при создании новой машины
+        config.withConfiguration().autoStartup(false); // Старт стейтмашины при создании новой машины
     }
 
     @Override

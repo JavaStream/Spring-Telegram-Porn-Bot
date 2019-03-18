@@ -6,6 +6,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +16,7 @@ import java.util.ArrayList;
  * Поиск ЗАГОЛОВКОВ к видео (названия роликов)
  */
 
-
+@Component
 public class HeadersSearch {
 
     private String url;               // базовый url сайта, прописан в service.Properties
@@ -25,9 +27,10 @@ public class HeadersSearch {
     // ОСНОВНОЙ МЕТОД по поиску текстовых названий роликов
     public ArrayList<String> getHeadersOfVideos(String serchMsg) throws IOException {
 
-        this.serchMsgFormated = new SearchingMessage(serchMsg).splitMessage();
-        this.url = Properties.URL;
-        this.urlSearch = url+ "/search/" +serchMsgFormated;
+        serchMsgFormated = new SearchingMessage().splitMessage(serchMsg);
+
+        url = Properties.URL;
+        urlSearch = url+ "/search/" +serchMsgFormated;
 
         // Парсим веб-страницу, полученную после поиска по поисковому выражению пользователя и получаем массив элементов ЗАГОЛОВКОВ
         Elements headerElements = parseDocument(urlSearch);

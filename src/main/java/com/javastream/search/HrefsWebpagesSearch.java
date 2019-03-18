@@ -13,6 +13,7 @@ import java.util.ArrayList;
 /**
  * Поиск ССЫЛОК НА СТРАНИЦЫ видео
  */
+
 public class HrefsWebpagesSearch {
 
     private String url;               // базовый url сайта, прописан в service.Properties
@@ -23,7 +24,7 @@ public class HrefsWebpagesSearch {
     // ОСНОВНОЙ МЕТОД по поиску ссылокн страницы роликов
     public ArrayList<String> getHrefsOfVideos(String serchMsg) throws IOException {
 
-        this.serchMsgFormated = new SearchingMessage(serchMsg).splitMessage();
+        this.serchMsgFormated = new SearchingMessage().splitMessage(serchMsg);
         this.url = Properties.URL;
         this.urlSearch = url+ "/search/" +serchMsgFormated;
 
