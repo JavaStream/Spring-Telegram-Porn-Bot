@@ -1,5 +1,6 @@
 package com.javastream.model;
 
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.ArrayList;
 /**
  * Created by javastream on 26.02.2019.
  */
+@Component
 public class Videos {
 
     private ArrayList<Message> message;

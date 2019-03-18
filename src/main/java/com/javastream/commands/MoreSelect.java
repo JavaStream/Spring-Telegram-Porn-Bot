@@ -2,6 +2,8 @@ package com.javastream.commands;
 
 import com.javastream.model.Videos;
 import com.javastream.service.Properties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.ArrayList;
@@ -9,14 +11,17 @@ import java.util.ArrayList;
 /**
  * Отвечает за выдачу очередной порции роликов или фото по запросу пользователя
  */
+@Component
 public class MoreSelect {
 
     int more = 0;
     int countOfVideo = Properties.NUMBER_OF_VIDEOS_MORE; // кол-во роликов на запрос /more от пользователя
+
+    @Autowired
     private Videos videos;
 
     public MoreSelect() {
-        this.videos = new Videos();
+
     }
 
     public Videos outputMore(Message message, ArrayList<String> arrayCaptions, ArrayList<String> arrayHref, ArrayList<String> arrUrlImg, ArrayList<String> urlMP4, Integer lastIdOfVideo) {

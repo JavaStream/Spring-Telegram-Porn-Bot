@@ -1,11 +1,13 @@
 package com.javastream.service;
 
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 /**
  * Возвращает объект SendingPhoto
  */
+@Component
 public class SendingPhoto {
 
     // Возвращает объект SendingPhoto с заголовком, ссылкой на вебстраницу с видео

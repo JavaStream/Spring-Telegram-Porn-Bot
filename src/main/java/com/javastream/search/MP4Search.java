@@ -6,6 +6,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,17 +15,20 @@ import java.util.ArrayList;
 /**
  * Поиск ссылок на MP4 ролики
  */
+@Component
 public class MP4Search   {
 
     private String url;               // базовый url сайта, прописан в service.Properties
     private String serchMsgFormated;  // Отформатированный поисковый запрос, готовый к работе
     private String urlSearch;         // Полный url поискового запроса
 
+    @Autowired
+    private SearchingMessage searchingMessage;
 
     // ОСНОВНОЙ МЕТОД по получению ссылок на ролики MP4
     public ArrayList<String> getHrefsOfMP4(String serchMsg) throws IOException {
 
-        this.serchMsgFormated = new SearchingMessage().splitMessage(serchMsg);
+        this.serchMsgFormated = searchingMessage.splitMessage(serchMsg);
         this.url = Properties.URL;
         this.urlSearch = url+ "/search/" +serchMsgFormated;
 

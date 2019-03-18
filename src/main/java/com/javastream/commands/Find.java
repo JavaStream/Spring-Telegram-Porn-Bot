@@ -21,6 +21,19 @@ import java.util.ArrayList;
 @Component
 public class Find {
 
+    @Autowired
+    private HeadersSearch headersSearch;
+
+    @Autowired
+    private HrefsWebpagesSearch hrefsWebpagesSearch;
+
+    @Autowired
+    private ImagesSearch imagesSearch;
+
+    @Autowired
+    private MP4Search mp4Search;
+
+
     ArrayList<String> arrayHeaders;   // Массив заголовков (caption)
     ArrayList<String> arrayHrefs;     // Массив ссылок (href)
     ArrayList<String> arrUrlImg;      // Массив ссылок на картинку (urlImg)
@@ -46,10 +59,10 @@ public class Find {
         String messageText = message.getText();
         String searchingMessage = messageText.replaceAll("/find", "");
         try {
-            arrayHeaders = new HeadersSearch().getHeadersOfVideos(searchingMessage);
-            arrayHrefs = new HrefsWebpagesSearch().getHrefsOfVideos(searchingMessage);
-            arrUrlImg = new ImagesSearch().getImages(searchingMessage);
-            arrMP4links = new MP4Search().getHrefsOfMP4(searchingMessage);
+            arrayHeaders = headersSearch.getHeadersOfVideos(searchingMessage);
+            arrayHrefs = hrefsWebpagesSearch.getHrefsOfVideos(searchingMessage);
+            arrUrlImg = imagesSearch.getImages(searchingMessage);
+            arrMP4links = mp4Search.getHrefsOfMP4(searchingMessage);
 
 
         } catch (IOException e) {

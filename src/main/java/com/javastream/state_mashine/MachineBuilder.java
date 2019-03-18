@@ -1,10 +1,11 @@
 package com.javastream.state_mashine;
 
 import com.javastream.VideoBot;
+import com.javastream.commands.FindNew;
 import com.javastream.service.Properties;
-import com.javastream.commands.Find;
 import com.javastream.commands.MoreSelect;
 import com.javastream.model.Sender;
+import com.javastream.service.SendTextMsg;
 import com.javastream.states.OrderEvents;
 import com.javastream.states.OrderStates;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -24,6 +26,16 @@ import java.util.EnumSet;
 
 @Component
 public class MachineBuilder {
+
+    @Autowired
+    private FindNew findNew;
+
+    @Autowired
+    private SendTextMsg sendTextMsg;
+
+    @Autowired
+    private MoreSelect moreSelect;
+
 
     private Sender sender;
     ArrayList<String> arrayHeaders;
@@ -122,49 +134,27 @@ public class MachineBuilder {
         return builder.build();
     }
 
-    private Action<OrderStates,OrderEvents> more() {
-        return new Action<OrderStates,OrderEvents>() {
-            @Override
-            public void execute(StateContext<OrderStates,OrderEvents> context) {
-                // More send video. It calls MoreSelect Command.
-                logger.info("300. Current State -> {}", context.getEvent().name());
-
-                Message message = context.getExtendedState().get("message", Message.class);
-
-                logger.info("301. More sending -> {}", message.getText());
-
-                sender.setExcecuteMethod("arrayVideo");
-                sender.setVideos(new MoreSelect().outputMore(message, arrayHeaders, arrayHrefs, arrUrlImg, arrMP4links, lastIdOfVideo));
-                sender.setMessage(message);
-                lastIdOfVideo += lastIdOfVideo;
-            }
-        };
-    }
-
-
+    // START()
     public Action<OrderStates,OrderEvents> start() {
 
         return new Action<OrderStates,OrderEvents>() {
             @Override
             public void execute(StateContext<OrderStates,OrderEvents> context) {
-                /* Результаты выполнения данного метода будут записаны в поля статического класса Sender, а затем
+                /* Результаты выполнения данного метода будут записаны в полt статического класса Sender, а затем
                 *  получены в классе VideoBot
                 */
                 logger.info("100. Current State -> {}", context.getEvent().name());
                 Message message = context.getExtendedState().get("message", Message.class);
+                SendMessage sendMessage = sendTextMsg.sendTextMsg(message, "Для поиска  видео задайте команду /find и поисковый запрос. Например, /find hot girls или /find горячие девчонки");
 
+                sender.setSendMessage(sendMessage);
                 sender.setExcecuteMethod("sendMessage");
-                sender.setText("Для поиска видео задайте команду /find и поисковый запрос. Например, /find hot girls или /find горячие девчонки\"");
-                sender.setMessage(message);
-
             }
         };
     }
 
 
-
-
-
+    // FIND()
     public Action<OrderStates,OrderEvents> find() {
         return new Action<OrderStates,OrderEvents>() {
             @Override
@@ -177,22 +167,45 @@ public class MachineBuilder {
                 logger.info("201. Serching for -> {}", message.getText());
 
                 try {
-                    Find find = new Find();
-                    find.setArraysData(message);
-                    arrayHeaders = find.getArrayHeaders();
-                    arrayHrefs = find.getArrayHrefs();
-                    arrUrlImg = find.getArrUrlImg();
-                    arrMP4links = find.getArrMP4links();
+                    sender.setArrayListSendPhoto(findNew.findCommand(message));
                     sender.setExcecuteMethod("arrayListSendPhoto");
-                    sender.setArrayListSendPhoto(find.findCommand(message));
-                    sender.setMessage(message);
+
+                    arrayHeaders = new ArrayList<String>();
+                    arrayHrefs = new ArrayList<String>();
+                    arrUrlImg = new ArrayList<String>();
+                    arrMP4links = new ArrayList<String>();
+
+                    arrayHeaders = findNew.getHeadersSearchList();
+                    arrayHrefs = findNew.getHrefsWebpagesSearchList();
+                    arrUrlImg = findNew.getImagesSearchList();
+                    arrMP4links = findNew.getMp4SearchList();
+
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
-
             }
         };
     }
 
+    // MORE()
+    private Action<OrderStates,OrderEvents> more() {
+        return new Action<OrderStates,OrderEvents>() {
+            @Override
+            public void execute(StateContext<OrderStates,OrderEvents> context) {
+                // More send video. It calls MoreSelect Command.
+                logger.info("300. Current State -> {}", context.getEvent().name());
+
+                Message message = context.getExtendedState().get("message", Message.class);
+
+                logger.info("301. More sending -> {}", message.getText());
+                //findNew.setArraysData(message);
+
+                sender.setExcecuteMethod("arrayVideo");
+                sender.setVideos(moreSelect.outputMore(message, arrayHeaders, arrayHrefs, arrUrlImg, arrMP4links, lastIdOfVideo));
+                sender.setMessage(message);
+                lastIdOfVideo += lastIdOfVideo;
+            }
+        };
+    }
 
 }

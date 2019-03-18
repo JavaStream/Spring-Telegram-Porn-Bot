@@ -2,7 +2,6 @@ package com.javastream;
 
 import com.javastream.model.Sender;
 import com.javastream.model.Videos;
-import com.javastream.service.SendTextMsg;
 import com.javastream.service.SendingPhoto;
 import com.javastream.state_mashine.MachineBuilder;
 import com.javastream.states.OrderEvents;
@@ -23,17 +22,20 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Component
 public class VideoBot extends TelegramLongPollingBot {
 
     private static final Logger logger = LoggerFactory.getLogger(VideoBot.class);
 
-    @Autowired
-    MessegeTextUtil messegeTextUtil;
+    private StateMachine<OrderStates, OrderEvents> stateMachine;
 
     @Autowired
-    Test test;
+    private MachineBuilder machineBuilder;
+
+    @Autowired
+    MessegeTextUtil messegeTextUtil;
 
     @Value("${bot.token}")
     private String token;
@@ -41,18 +43,14 @@ public class VideoBot extends TelegramLongPollingBot {
     @Value("${bot.username}")
     private String username;
 
-    private StateMachine<OrderStates, OrderEvents> stateMachine;
+
 
     public VideoBot() {
     }
 
-    public void startStateMachine()  {
-        try {
-            this.stateMachine = new MachineBuilder().buildMachine();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        this.stateMachine.start();
+    public void startStateMachine() throws Exception {
+        stateMachine = machineBuilder.buildMachine();
+        stateMachine.start();
     }
 
     @Override
@@ -66,7 +64,7 @@ public class VideoBot extends TelegramLongPollingBot {
                 OrderEvents event = messegeTextUtil.getEvent(messageText);
                 stateMachine.getExtendedState().getVariables().put("message", message);
                 stateMachine.sendEvent(event);
-                System.out.println(test.print("TTTTTTTTTTTTTTTTTTT"));
+
 
                 /* Если статический класс Sender не содержит массив типа SendPhoto(), то выполнение
                 *  передать методу executeMessage(SendMessage sendMessage), в противном случае должен
@@ -74,17 +72,20 @@ public class VideoBot extends TelegramLongPollingBot {
                 *  (!) Попробовать реализовать без блока IF ELSE за счет перегрузки метода executeMessage()
                 */
 
+
                 if (Sender.getExcecuteMethod().equals("sendMessage")) {
-                    SendMessage sendMessage = new SendTextMsg().sendTextMsg(Sender.getMessage(), Sender.getText());
-                    executeMessage(sendMessage);
-
-
+                    executeMessage(Sender.getSendMessage());
                 }
                 else if (Sender.getExcecuteMethod().equals("arrayListSendPhoto"))  {
                     executeMessage(Sender.getArrayListSendPhoto());
                 }
                 else if (Sender.getExcecuteMethod().equals("arrayVideo")) {
-                    executeMessage(message, Sender.getVideos());
+                    System.out.println("arrayVideo");
+                    System.out.println("getArrUrlImg().size() - " + Sender.getVideos().getArrUrlImg().size());
+                    System.out.println("getArrayCaptions().size() - " + Sender.getVideos().getArrayCaptions().size());
+                    System.out.println("getArrayHref().size() - " + Sender.getVideos().getArrayHref().size());
+                    System.out.println("getUrlMP4().size() - " + Sender.getVideos().getUrlMP4().size());
+                    executeMessage(Sender.getVideos());
                 }
 
 
@@ -92,10 +93,10 @@ public class VideoBot extends TelegramLongPollingBot {
         }
     }
 
-    private void executeMessage(Message message, Videos videos) {
+    private void executeMessage(Videos videos) {
         for (int i = 0; i < videos.getArrayCaptions().size(); i++) {
             try {
-                execute(new SendingPhoto().sendPhoto(message, videos.getArrayCaptions().get(i), videos.getArrayHref().get(i), videos.getArrUrlImg().get(i)));
+                execute(new SendingPhoto().sendPhoto(videos.getMessage().get(i), videos.getArrayCaptions().get(i), videos.getArrayHref().get(i), videos.getArrUrlImg().get(i)));
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -132,7 +133,7 @@ public class VideoBot extends TelegramLongPollingBot {
 
 
     @PostConstruct
-    public void start() {
+    public void start() throws Exception {
         startStateMachine();
         logger.info("username: {}, token: {}", username, token);
     }

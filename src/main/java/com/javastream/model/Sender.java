@@ -13,13 +13,11 @@ public class Sender {
 
     private static String text;
     private static Message message;
+    private static SendMessage sendMessage;
     private static ArrayList<SendPhoto> arrayListSendPhoto;
     private static Videos videos;
     private static String excecuteMethod;
 
-    public Sender() {
-
-    }
 
     public static SendMessage sendMessage() {
             return new SendTextMsg().sendTextMsg(Sender.getMessage(), Sender.getText());
@@ -67,5 +65,13 @@ public class Sender {
 
     public static void setExcecuteMethod(String excecuteMethod) {
         Sender.excecuteMethod = excecuteMethod;
+    }
+
+    public static SendMessage getSendMessage() {
+        return sendMessage;
+    }
+
+    public static void setSendMessage(SendMessage sendMessage) {
+        Sender.sendMessage = sendMessage;
     }
 }

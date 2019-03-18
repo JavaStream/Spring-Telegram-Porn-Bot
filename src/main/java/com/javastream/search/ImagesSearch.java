@@ -6,6 +6,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 /**
  * Поиск ЗАСТАВКИ (ОСНОВНОГО ПОСТЕРА) для данного роликов
  */
+@Component
 public class ImagesSearch {
 
     private String url;               // базовый url сайта, прописан в service.Properties
@@ -20,7 +23,11 @@ public class ImagesSearch {
     private String urlSearch;         // Полный url поискового запроса
     Document doc = null;
 
+    @Autowired
+    private SearchingMessage searchingMessage;
 
+    @Autowired
+    private HrefsWebpagesSearch hrefsWebpagesSearch;
 
     // ОСНОВНОЙ МЕТОД получения базовой картинки для страницы с видеороликом
     public ArrayList<String> getImages(String serchMsg)  {
@@ -43,12 +50,12 @@ public class ImagesSearch {
     // Метод парсинга веб-страницы с помощью библиотеки JSOUP
     public ArrayList<String> parseDocument(String serchMsg) throws IOException {
 
-        this.serchMsgFormated = new SearchingMessage().splitMessage(serchMsg);
+        this.serchMsgFormated = searchingMessage.splitMessage(serchMsg);
         this.url = Properties.URL;
         this.urlSearch = url+ "/search/" +serchMsgFormated;
 
         // Массив всех ссылок на видеоролики
-        ArrayList<String> hrefsOfVideos = new HrefsWebpagesSearch().getHrefsOfVideos(serchMsgFormated);
+        ArrayList<String> hrefsOfVideos = hrefsWebpagesSearch.getHrefsOfVideos(serchMsgFormated);
 
         // Массив всех картинок по нашему запросу
         ArrayList<String> listImg = new ArrayList<String>();

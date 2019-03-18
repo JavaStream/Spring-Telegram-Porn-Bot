@@ -22,12 +22,15 @@ public class HeadersSearch {
     private String url;               // базовый url сайта, прописан в service.Properties
     private String serchMsgFormated;  // Отформатированный поисковый запрос, готовый к работе
     private String urlSearch;         // Полный url поискового запроса
+    private ArrayList<String> headlineVideo;
 
+    @Autowired
+    private SearchingMessage searchingMessage;
 
     // ОСНОВНОЙ МЕТОД по поиску текстовых названий роликов
     public ArrayList<String> getHeadersOfVideos(String serchMsg) throws IOException {
 
-        serchMsgFormated = new SearchingMessage().splitMessage(serchMsg);
+        serchMsgFormated = searchingMessage.splitMessage(serchMsg);
 
         url = Properties.URL;
         urlSearch = url+ "/search/" +serchMsgFormated;
@@ -54,7 +57,7 @@ public class HeadersSearch {
     // Возвращает массив заголовков к видео
     public ArrayList<String> getArraysOfHreffs(Elements headerElements) {
 
-        ArrayList<String> headlineVideo = new ArrayList<String>(); // Массив для хранения заголовков к видео роликам
+        headlineVideo = new ArrayList<String>(); // Массив для хранения заголовков к видео роликам
 
         // Заполняем массив текстами заголовков к видео
         for (Element headlineElement:headerElements) {
