@@ -36,9 +36,16 @@ public class VideoBot extends TelegramLongPollingBot {
 
     private StateMachine<OrderStates, OrderEvents> stateMachine;
 
-    public VideoBot() throws Exception {
-       this.stateMachine = new MachineBuilder().buildMachine();
-       this.stateMachine.start();
+    public VideoBot() {
+    }
+
+    public void startStateMachine()  {
+        try {
+            this.stateMachine = new MachineBuilder().buildMachine();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        this.stateMachine.start();
     }
 
     @Override
@@ -119,6 +126,7 @@ public class VideoBot extends TelegramLongPollingBot {
 
     @PostConstruct
     public void start() {
+        startStateMachine();
         logger.info("username: {}, token: {}", username, token);
     }
 
