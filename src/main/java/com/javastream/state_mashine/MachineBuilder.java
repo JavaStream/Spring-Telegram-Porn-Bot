@@ -1,7 +1,7 @@
 package com.javastream.state_mashine;
 
 import com.javastream.VideoBot;
-import com.javastream.commands.FindNew;
+import com.javastream.commands.Find;
 import com.javastream.service.Properties;
 import com.javastream.commands.MoreSelect;
 import com.javastream.model.Sender;
@@ -28,7 +28,7 @@ import java.util.EnumSet;
 public class MachineBuilder {
 
     @Autowired
-    private FindNew findNew;
+    private Find find;
 
     @Autowired
     private SendTextMsg sendTextMsg;
@@ -145,7 +145,7 @@ public class MachineBuilder {
                 */
                 logger.info("100. Current State -> {}", context.getEvent().name());
                 Message message = context.getExtendedState().get("message", Message.class);
-                SendMessage sendMessage = sendTextMsg.sendTextMsg(message, "Для поиска  видео задайте команду /find и поисковый запрос. Например, /find hot girls или /find горячие девчонки");
+                SendMessage sendMessage = sendTextMsg.sendTextMsg(message, "Для поиска  видео задайте команду /find и поисковый запрос. Например, /find hot girls или /find горячие девчонки. Поиск может занять 20-30 сек.");
 
                 sender.setSendMessage(sendMessage);
                 sender.setExcecuteMethod("sendMessage");
@@ -167,7 +167,7 @@ public class MachineBuilder {
                 logger.info("201. Serching for -> {}", message.getText());
 
                 try {
-                    sender.setArrayListSendPhoto(findNew.findCommand(message));
+                    sender.setArrayListSendPhoto(find.findCommand(message));
                     sender.setExcecuteMethod("arrayListSendPhoto");
 
                     arrayHeaders = new ArrayList<String>();
@@ -175,10 +175,10 @@ public class MachineBuilder {
                     arrUrlImg = new ArrayList<String>();
                     arrMP4links = new ArrayList<String>();
 
-                    arrayHeaders = findNew.getHeadersSearchList();
-                    arrayHrefs = findNew.getHrefsWebpagesSearchList();
-                    arrUrlImg = findNew.getImagesSearchList();
-                    arrMP4links = findNew.getMp4SearchList();
+                    arrayHeaders = find.getHeadersSearchList();
+                    arrayHrefs = find.getHrefsWebpagesSearchList();
+                    arrUrlImg = find.getImagesSearchList();
+                    arrMP4links = find.getMp4SearchList();
 
                 } catch (TelegramApiException e) {
                     e.printStackTrace();

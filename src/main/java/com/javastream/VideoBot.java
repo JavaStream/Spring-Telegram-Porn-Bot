@@ -66,13 +66,9 @@ public class VideoBot extends TelegramLongPollingBot {
                 stateMachine.sendEvent(event);
 
 
-                /* Если статический класс Sender не содержит массив типа SendPhoto(), то выполнение
-                *  передать методу executeMessage(SendMessage sendMessage), в противном случае должен
-                *  быть вызван метод executeMessage(ArrayList<SendPhoto> photoLis)
-                *  (!) Попробовать реализовать без блока IF ELSE за счет перегрузки метода executeMessage()
+                /* Метод getExcecuteMethod() статического класс Sender возвращает тип обьекта, исходя из которого
+                *  выполнение будет передано соответствующему executeMessage()
                 */
-
-
                 if (Sender.getExcecuteMethod().equals("sendMessage")) {
                     executeMessage(Sender.getSendMessage());
                 }
@@ -80,18 +76,12 @@ public class VideoBot extends TelegramLongPollingBot {
                     executeMessage(Sender.getArrayListSendPhoto());
                 }
                 else if (Sender.getExcecuteMethod().equals("arrayVideo")) {
-                    System.out.println("arrayVideo");
-                    System.out.println("getArrUrlImg().size() - " + Sender.getVideos().getArrUrlImg().size());
-                    System.out.println("getArrayCaptions().size() - " + Sender.getVideos().getArrayCaptions().size());
-                    System.out.println("getArrayHref().size() - " + Sender.getVideos().getArrayHref().size());
-                    System.out.println("getUrlMP4().size() - " + Sender.getVideos().getUrlMP4().size());
                     executeMessage(Sender.getVideos());
                 }
-
-
             }
         }
     }
+
 
     private void executeMessage(Videos videos) {
         for (int i = 0; i < videos.getArrayCaptions().size(); i++) {
