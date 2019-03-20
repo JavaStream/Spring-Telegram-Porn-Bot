@@ -127,18 +127,21 @@ public class MachineBuilder {
                 .withExternal()
                 .source(OrderStates.MORE).target(OrderStates.ALL)
                 .event(OrderEvents.ALL_COMMAND)
+                .action(findAll())
 
                 // ALL -> FIND
                 .and()
                 .withExternal()
                 .source(OrderStates.ALL).target(OrderStates.FIND)
                 .event(OrderEvents.FIND_COMMAND)
+                .action(findAll())
 
                 // ALL -> START
                 .and()
                 .withExternal()
                 .source(OrderStates.ALL).target(OrderStates.START)
-                .event(OrderEvents.START_COMMAND);
+                .event(OrderEvents.START_COMMAND)
+                .action(start());
 
         return builder.build();
     }
@@ -199,17 +202,21 @@ public class MachineBuilder {
             @Override
             public void execute(StateContext<OrderStates,OrderEvents> context) {
                 // More send video. It calls MoreSelect Command.
+                Integer lastIdOfVideo = 4;
                 logger.info("300. Current State -> {}", context.getEvent().name());
 
                 Message message = context.getExtendedState().get("message", Message.class);
 
                 logger.info("301. More sending -> {}", message.getText());
-                //findNew.setArraysData(message);
-
                 sender.setExcecuteMethod("arrayVideo");
                 sender.setVideos(moreSelect.outputMore(message, arrayHeaders, arrayHrefs, arrUrlImg, arrMP4links, lastIdOfVideo));
                 sender.setMessage(message);
-                lastIdOfVideo += lastIdOfVideo;
+                lastIdOfVideo = lastIdOfVideo + lastIdOfVideo;
+                // arrayHeaders.clear();
+                // arrayHrefs.clear();
+                // arrUrlImg.clear();
+                // arrMP4links.clear();
+                // lastIdOfVideo = lastIdOfVideo + lastIdOfVideo;
             }
         };
     }

@@ -17,6 +17,7 @@ public class MoreSelect {
     int more = 0;
     int countOfVideo = Properties.NUMBER_OF_VIDEOS_MORE; // кол-во роликов на запрос /more от пользователя
 
+
     @Autowired
     private Videos videos;
 
@@ -47,9 +48,12 @@ public class MoreSelect {
                 videos.setEndOfArray("end_video_array");
             }
 
+
+
             // Переменная для определения последнего элемента после того как цикл отработал
             more = i;
         }
+
         return videos;
     }
 

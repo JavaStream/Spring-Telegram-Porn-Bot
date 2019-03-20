@@ -65,33 +65,30 @@ public class VideoBot extends TelegramLongPollingBot {
                 stateMachine.getExtendedState().getVariables().put("message", message);
                 stateMachine.sendEvent(event);
 
-
-                /* Метод getExcecuteMethod() статического класс Sender возвращает тип обьекта, исходя из которого
-                *  выполнение будет передано соответствующему executeMessage()
-                */
-                if (Sender.getExcecuteMethod().equals("sendMessage")) {
-                    executeMessage(Sender.getSendMessage());
-                }
-                else if (Sender.getExcecuteMethod().equals("arrayListSendPhoto"))  {
-                    executeMessage(Sender.getArrayListSendPhoto());
-                }
-                else if (Sender.getExcecuteMethod().equals("arrayVideo")) {
-                    executeMessage(Sender.getVideos());
-                }
+                // Отправляем в чат данные, полученные от стейт-машины
+                executeMessage();
             }
         }
     }
 
 
-    private void executeMessage(Videos videos) {
-        for (int i = 0; i < videos.getArrayCaptions().size(); i++) {
-            try {
-                execute(new SendingPhoto().sendPhoto(videos.getMessage().get(i), videos.getArrayCaptions().get(i), videos.getArrayHref().get(i), videos.getArrUrlImg().get(i)));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+    /*
+    *  Универсальный метод по выводу в чат данного разного типа
+    *  Метод getExcecuteMethod() статического класс Sender возвращает тип обьекта, исходя из которого
+    *  выполнение будет передано соответствующему executeMessage()
+    */
+    private void executeMessage() {
+        if (Sender.getExcecuteMethod().equals("sendMessage")) {
+            executeMessage(Sender.getSendMessage());
+        }
+        else if (Sender.getExcecuteMethod().equals("arrayListSendPhoto")) {
+            executeMessage(Sender.getArrayListSendPhoto());
+        }
+        else if (Sender.getExcecuteMethod().equals("arrayVideo")) {
+            executeMessage(Sender.getVideos());
         }
     }
+
 
 
     public void executeMessage(SendMessage sendMessage) {
@@ -108,6 +105,16 @@ public class VideoBot extends TelegramLongPollingBot {
                 execute(sendPhoto);
         } catch (TelegramApiException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void executeMessage(Videos videos) {
+        for (int i = 0; i < videos.getArrayCaptions().size(); i++) {
+            try {
+                execute(new SendingPhoto().sendPhoto(videos.getMessage().get(i), videos.getArrayCaptions().get(i), videos.getArrayHref().get(i), videos.getArrUrlImg().get(i)));
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
         }
     }
 

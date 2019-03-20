@@ -4,6 +4,7 @@ import com.javastream.search.HeadersSearch;
 import com.javastream.search.HrefsWebpagesSearch;
 import com.javastream.search.ImagesSearch;
 import com.javastream.search.MP4Search;
+import com.javastream.service.Properties;
 import com.javastream.service.SendingPhoto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -76,13 +77,13 @@ public class Find {
     }
 
 
-    // Возвращает массив объектов SendingPhoto, которые в основном классе бота могут быть выполнены командой execute
+    // Возвращает ограниченный массив объектов SendingPhoto. Стартовый массив ограничен кол-вом роликов, которое задает юзер
     public ArrayList<SendPhoto> findCommand(Message message)  {
 
         // Метод возвращает массивы данных по нашему запросу (заголовки, ссылки на видео и картинки)
         setArraysData(message);
 
-        for (int i=0; i < 5; i++) {
+        for (int i = 0; i < Properties.NUMBER_OF_VIDEOS_START; i++) {
 
             String caption = headersSearchList.get(i);
             String href = hrefsWebpagesSearchList.get(i);
@@ -96,11 +97,10 @@ public class Find {
         return arrayListSendPhoto;
     }
 
+    // Создание полного массива роликов по запросу юзера
     public ArrayList<SendPhoto> findAll(Message message) {
 
         for (int i=0; i < headersSearchList.size(); i++) {
-
-            System.out.println("headersSearchList.size() - " +headersSearchList.size());
 
             String caption = headersSearchList.get(i);
             String href = hrefsWebpagesSearchList.get(i);

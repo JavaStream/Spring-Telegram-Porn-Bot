@@ -13,7 +13,7 @@ public interface Properties {
     String LOCATION = "d://";
 
     // Стартовое количество видео, выдаваемых клиенту на запрос /find
-    int NUMBER_OF_VIDEOS_START = 5;
+    int NUMBER_OF_VIDEOS_START = 4;
 
     // Количество видео, выдаваемых порционно клиенту на запрос /more  после того как сформирован массив видео по ключевому запросу
     int NUMBER_OF_VIDEOS_MORE = 4;
