@@ -18,6 +18,7 @@ import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -42,6 +43,7 @@ public class MachineBuilder {
     ArrayList<String> arrayHrefs;
     ArrayList<String> arrUrlImg;
     ArrayList<String> arrMP4links;
+    ArrayList<SendPhoto> arrayFullListSendPhoto;
     private int lastIdOfVideo = Properties.NUMBER_OF_VIDEOS_MORE;
 
 
@@ -118,6 +120,7 @@ public class MachineBuilder {
                 .withExternal()
                 .source(OrderStates.FIND).target(OrderStates.ALL)
                 .event(OrderEvents.ALL_COMMAND)
+                .action(findAll())
 
                 // MORE -> ALL
                 .and()
@@ -129,7 +132,13 @@ public class MachineBuilder {
                 .and()
                 .withExternal()
                 .source(OrderStates.ALL).target(OrderStates.FIND)
-                .event(OrderEvents.FIND_COMMAND);
+                .event(OrderEvents.FIND_COMMAND)
+
+                // ALL -> START
+                .and()
+                .withExternal()
+                .source(OrderStates.ALL).target(OrderStates.START)
+                .event(OrderEvents.START_COMMAND);
 
         return builder.build();
     }
@@ -166,7 +175,7 @@ public class MachineBuilder {
 
                 logger.info("201. Serching for -> {}", message.getText());
 
-                try {
+
                     sender.setArrayListSendPhoto(find.findCommand(message));
                     sender.setExcecuteMethod("arrayListSendPhoto");
 
@@ -180,9 +189,6 @@ public class MachineBuilder {
                     arrUrlImg = find.getImagesSearchList();
                     arrMP4links = find.getMp4SearchList();
 
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
             }
         };
     }
@@ -204,6 +210,24 @@ public class MachineBuilder {
                 sender.setVideos(moreSelect.outputMore(message, arrayHeaders, arrayHrefs, arrUrlImg, arrMP4links, lastIdOfVideo));
                 sender.setMessage(message);
                 lastIdOfVideo += lastIdOfVideo;
+            }
+        };
+    }
+
+
+    // findAll()
+    private Action<OrderStates,OrderEvents> findAll() {
+        return new Action<OrderStates,OrderEvents>() {
+            @Override
+            public void execute(StateContext<OrderStates,OrderEvents> context) {
+                // Find all videos for user's current requsts.
+                logger.info("400. Current State -> {}", context.getEvent().name());
+                Message message = context.getExtendedState().get("message", Message.class);
+                arrayFullListSendPhoto = new ArrayList<SendPhoto>();
+
+                arrayFullListSendPhoto = find.findAll(message);
+                sender.setArrayListSendPhoto(arrayFullListSendPhoto);
+                sender.setExcecuteMethod("arrayListSendPhoto");
             }
         };
     }

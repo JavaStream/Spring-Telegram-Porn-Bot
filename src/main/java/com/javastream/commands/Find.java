@@ -36,7 +36,9 @@ public class Find {
     private ArrayList<String> hrefsWebpagesSearchList;
     private ArrayList<String> imagesSearchList;
     private ArrayList<String> mp4SearchList;
-    private ArrayList<SendPhoto> arrayListSendPhoto;
+    private ArrayList<SendPhoto> arrayListSendPhoto;      // Частичная выборка видео
+    private ArrayList<SendPhoto> arrayFullListSendPhoto;  // Полный список видео по запросу юзера
+
 
     public Find() {
         headersSearchList       = new ArrayList<String>();
@@ -44,6 +46,7 @@ public class Find {
         imagesSearchList        = new ArrayList<String>();
         mp4SearchList           = new ArrayList<String>();
         arrayListSendPhoto      = new ArrayList<SendPhoto>();
+        arrayFullListSendPhoto  = new ArrayList<SendPhoto>();
     }
 
     public void setArraysData(Message message) {
@@ -54,6 +57,7 @@ public class Find {
         if (!imagesSearchList.isEmpty())              { imagesSearchList.clear(); }
         if (!mp4SearchList.isEmpty())                 { mp4SearchList.clear(); }
         if (!arrayListSendPhoto.isEmpty())            { arrayListSendPhoto.clear(); }
+        if (!arrayFullListSendPhoto.isEmpty())        { arrayFullListSendPhoto.clear(); }
 
 
         // Поисковый запрос без /http. По этим поисковым словам будем выдергивать видео из поиска сайта с видео
@@ -73,7 +77,7 @@ public class Find {
 
 
     // Возвращает массив объектов SendingPhoto, которые в основном классе бота могут быть выполнены командой execute
-    public ArrayList<SendPhoto> findCommand(Message message) throws TelegramApiException {
+    public ArrayList<SendPhoto> findCommand(Message message)  {
 
         // Метод возвращает массивы данных по нашему запросу (заголовки, ссылки на видео и картинки)
         setArraysData(message);
@@ -91,6 +95,26 @@ public class Find {
 
         return arrayListSendPhoto;
     }
+
+    public ArrayList<SendPhoto> findAll(Message message) {
+
+        for (int i=0; i < headersSearchList.size(); i++) {
+
+            System.out.println("headersSearchList.size() - " +headersSearchList.size());
+
+            String caption = headersSearchList.get(i);
+            String href = hrefsWebpagesSearchList.get(i);
+            String urlImg = imagesSearchList.get(i);
+            String urlMP4 = mp4SearchList.get(i);
+
+            SendPhoto sendPhoto = sendingPhoto.sendPhoto(message, caption, href, urlImg); // Отправляем фото с подписью и ссылкой
+            arrayFullListSendPhoto.add(sendPhoto);
+        }
+
+        return arrayFullListSendPhoto;
+    }
+
+
 
 
 
