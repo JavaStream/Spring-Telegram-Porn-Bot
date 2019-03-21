@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 @Component
 public class SendTextMsg {
 
-    public SendMessage sendTextMsg(Message message, String s) {
+    public SendMessage send(Message message, String s) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(false); // при true вылетают исключения
         sendMessage.disableWebPagePreview();

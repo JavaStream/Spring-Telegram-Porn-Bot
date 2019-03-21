@@ -4,7 +4,6 @@ import com.javastream.service.SendTextMsg;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Video;
 
 import java.util.ArrayList;
 
@@ -14,13 +13,13 @@ public class Sender {
     private static String text;
     private static Message message;
     private static SendMessage sendMessage;
-    private static ArrayList<SendPhoto> arrayListSendPhoto;
-    private static Videos videos;
+    public static ArrayList<SendPhoto> arrayListSendPhoto;
+    public static Videos videos;
     private static String excecuteMethod;
 
 
     public static SendMessage sendMessage() {
-            return new SendTextMsg().sendTextMsg(Sender.getMessage(), Sender.getText());
+            return new SendTextMsg().send(Sender.getMessage(), Sender.getText());
     }
 
     public static ArrayList<SendPhoto> sendListSendPhoto() {

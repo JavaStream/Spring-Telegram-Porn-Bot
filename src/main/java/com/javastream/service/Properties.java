@@ -12,11 +12,8 @@ public interface Properties {
     // Директория сохранения скаченных MP4 файлов на диске
     String LOCATION = "d://";
 
-    // Стартовое количество видео, выдаваемых клиенту на запрос /find
-    int NUMBER_OF_VIDEOS_START = 4;
-
     // Количество видео, выдаваемых порционно клиенту на запрос /more  после того как сформирован массив видео по ключевому запросу
-    int NUMBER_OF_VIDEOS_MORE = 4;
+    int NUMBER_OF_VIDEOS = 4;
 
 
 }
