@@ -1,7 +1,9 @@
 package com.javastream;
 
+import com.javastream.commands.Search;
 import com.javastream.model.Sender;
 import com.javastream.model.Videos;
+import com.javastream.service.InlineKeyboard;
 import com.javastream.service.SendingPhoto;
 import com.javastream.state_mashine.MachineBuilder;
 import com.javastream.states.OrderEvents;
@@ -16,13 +18,15 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.Objects;
+
+import static java.lang.Math.toIntExact;
 
 @Component
 public class VideoBot extends TelegramLongPollingBot {
@@ -36,6 +40,9 @@ public class VideoBot extends TelegramLongPollingBot {
 
     @Autowired
     MessegeTextUtil messegeTextUtil;
+
+    @Autowired
+    private Search search;
 
     @Value("${bot.token}")
     private String token;
@@ -55,21 +62,66 @@ public class VideoBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage()) {
-            Message message = update.getMessage();
-            if (message != null && message.hasText()) {
-                String messageText = message.getText();
+        if (!update.hasCallbackQuery()) {
+            if (update.hasMessage()) {
+                Message message = update.getMessage();
+                if (message != null && message.hasText()) {
+                    String messageText = message.getText();
 
-                // Передаем стейт машине событие, которое запросил пользователь и обьект message
-                OrderEvents event = messegeTextUtil.getEvent(messageText);
-                stateMachine.getExtendedState().getVariables().put("message", message);
-                stateMachine.sendEvent(event);
+                    // Передаем стейт машине событие, которое запросил пользователь и обьект message
+                    OrderEvents event = messegeTextUtil.getEvent(messageText);
+                    stateMachine.getExtendedState().getVariables().put("message", message);
+                    stateMachine.sendEvent(event);
 
-                // Отправляем в чат данные, полученные от стейт-машины
-                executeMessage();
+                    // Отправляем в чат данные, полученные от стейт-машины
+                    executeMessage();
+
+                    try {
+                        execute(new InlineKeyboard().send(update)); // Вызываем инлайн клаву
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
+
+        if (update.hasCallbackQuery()) {
+            System.out.println("Вызван колбэк");
+            // Определяем данные колбэка (текст, id сообщения и чата)
+            String call_data = update.getCallbackQuery().getData();
+            long message_id = update.getCallbackQuery().getMessage().getMessageId();
+            long chat_id = update.getCallbackQuery().getMessage().getChatId();
+            Message message = update.getCallbackQuery().getMessage();
+            OrderEvents event = messegeTextUtil.getEvent(call_data);
+            System.out.println(call_data);
+
+            if (call_data != null) {
+                // заменяем исходный текст после нажатия на кнопку на новый текст
+                String answer = "Ваш запрос выполняется..";
+                EditMessageText new_message = new EditMessageText()
+                        .setChatId(chat_id)
+                        .setMessageId(toIntExact(message_id))
+                        .setText(answer);
+
+                try {
+                    // отправляем новый текст в чат
+                    execute(new_message); //
+                    stateMachine.getExtendedState().getVariables().put("message", message);
+                    stateMachine.sendEvent(event);
+
+
+                    // Отправить стейт-машине событие - колбэк, которое она обработает и вернет в видео
+
+                    //findCommand(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getData());
+
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
+
 
 
     /*

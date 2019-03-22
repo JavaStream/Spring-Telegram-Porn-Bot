@@ -71,6 +71,13 @@ public class MachineBuilder {
             .event(OrderEvents.FIND_COMMAND)
             .action(find())
 
+            // START -> FIND (->ASS)
+            .and()
+            .withExternal()
+            .source(OrderStates.START).target(OrderStates.FIND)
+            .event(OrderEvents.ASS_COMMAND)
+            .action(find())
+
             // FIND
             .and()
             .withExternal()
@@ -171,7 +178,7 @@ public class MachineBuilder {
             @Override
             public void execute(StateContext<OrderStates,OrderEvents> context) {
                 // Поиск видеороликов и выбор первой порции для отправки их юзеру
-                logger.info("200. Current State -> {}", context.getEvent().name());
+                logger.info("200. Current Event -> {}", context.getEvent().name());
 
                 Message message = context.getExtendedState().get("message", Message.class);
                 logger.info("201. Serching message -> {}", message.getText());

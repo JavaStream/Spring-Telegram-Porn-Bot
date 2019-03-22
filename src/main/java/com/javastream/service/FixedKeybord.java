@@ -27,7 +27,6 @@ public class FixedKeybord {
 
         // Создаем строки
         KeyboardRow keyboardFirstRow = new KeyboardRow();
-        KeyboardRow keyboardSecondRow = new KeyboardRow();
 
         // Основные установки для клавиатуры
         replyKeyboardMarkup.setSelective(true);
@@ -37,10 +36,8 @@ public class FixedKeybord {
         keyboard.clear();
         keyboardFirstRow.clear();
 
-        keyboardFirstRow.add("Категории");
-        keyboardFirstRow.add("Мои закладки");
-        keyboardFirstRow.add("Помощь");
-        keyboardFirstRow.add("О боте");
+        keyboardFirstRow.add("Help");
+        keyboardFirstRow.add("About Bot");
         keyboard.add(keyboardFirstRow);
 
         replyKeyboardMarkup.setKeyboard(keyboard); // обновляем клаву
