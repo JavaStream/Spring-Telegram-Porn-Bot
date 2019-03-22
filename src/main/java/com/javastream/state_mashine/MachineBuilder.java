@@ -78,6 +78,13 @@ public class MachineBuilder {
             .event(OrderEvents.FIND_COMMAND)
             .action(find())
 
+            // FIND - > ASS callback
+            .and()
+            .withExternal()
+            .source(OrderStates.START).target(OrderStates.FIND)
+            .event(OrderEvents.ASS_COMMAND)
+            .action(findCallback())
+
             // FIND -> START
             .and()
             .withExternal()
@@ -164,6 +171,24 @@ public class MachineBuilder {
         };
     }
 
+
+    // FIND()
+    public Action<OrderStates,OrderEvents> findCallback() {
+        return new Action<OrderStates,OrderEvents>() {
+            @Override
+            public void execute(StateContext<OrderStates,OrderEvents> context) {
+                // Поиск видеороликов и выбор первой порции для отправки их юзеру
+                logger.info("400. Current State -> {}", context.getEvent().name());
+
+                Message message = context.getExtendedState().get("message", Message.class);
+                logger.info("401. Serching message -> {}", message.getText());
+                String callData = context.getExtendedState().get("callData", String.class);
+                System.out.println("callData - " + callData);
+
+
+            }
+        };
+    }
 
     // FIND()
     public Action<OrderStates,OrderEvents> find() {
