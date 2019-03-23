@@ -27,9 +27,9 @@ public class InlineKeyboard {
         InlineKeyboardButton inlineBtn_4 = new InlineKeyboardButton();
 
         // Прикрепляем к ним текст на кнопке и колбэки (отклики на нажатие)
-        inlineBtn_1.setText("Ass").setCallbackData("ass");
-        inlineBtn_2.setText("Asian").setCallbackData("asian");
-        inlineBtn_3.setText("German").setCallbackData("german");
+        inlineBtn_1.setText("American").setCallbackData("american");
+        inlineBtn_2.setText("Germany").setCallbackData("germany");
+        inlineBtn_3.setText("France").setCallbackData("france");
         inlineBtn_4.setText("Russian").setCallbackData("russian");
 
         // Создаем массив строк, в которые будут помещены те или иные кнопки

@@ -62,30 +62,31 @@ public class VideoBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (!update.hasCallbackQuery()) {
-            if (update.hasMessage()) {
-                Message message = update.getMessage();
-                if (message != null && message.hasText()) {
-                    String messageText = message.getText();
 
-                    // Передаем стейт машине событие, которое запросил пользователь и обьект message
-                    OrderEvents event = messegeTextUtil.getEvent(messageText);
-                    stateMachine.getExtendedState().getVariables().put("message", message);
-                    stateMachine.sendEvent(event);
+        if (update.hasMessage() && !update.hasCallbackQuery()) {
+            Message message = update.getMessage();
+            if (message != null && message.hasText()) {
+                String messageText = message.getText();
 
-                    // Отправляем в чат данные, полученные от стейт-машины
-                    executeMessage();
+                // Передаем стейт машине событие, которое запросил пользователь и обьект message
+                OrderEvents event = messegeTextUtil.getEvent(messageText);
+                stateMachine.getExtendedState().getVariables().put("message", message);
+                stateMachine.getExtendedState().getVariables().put("update", update);
+                stateMachine.sendEvent(event);
 
-                    try {
-                        execute(new InlineKeyboard().send(update)); // Вызываем инлайн клаву
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
+                // Отправляем в чат данные, полученные от стейт-машины
+                executeMessage();
+                /*
+                try {
+                    execute(new InlineKeyboard().send(update)); // Вызываем инлайн клаву
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
                 }
+                */
             }
         }
+        else if (update.hasCallbackQuery()) {
 
-        if (update.hasCallbackQuery()) {
             System.out.println("Вызван колбэк");
             // Определяем данные колбэка (текст, id сообщения и чата)
             String call_data = update.getCallbackQuery().getData();
@@ -93,7 +94,8 @@ public class VideoBot extends TelegramLongPollingBot {
             long chat_id = update.getCallbackQuery().getMessage().getChatId();
             Message message = update.getCallbackQuery().getMessage();
             OrderEvents event = messegeTextUtil.getEvent(call_data);
-            System.out.println(call_data);
+
+            System.out.println("call_data = " + call_data);
 
             if (call_data != null) {
                 // заменяем исходный текст после нажатия на кнопку на новый текст
@@ -107,9 +109,10 @@ public class VideoBot extends TelegramLongPollingBot {
                     // отправляем новый текст в чат
                     execute(new_message); //
                     stateMachine.getExtendedState().getVariables().put("message", message);
+                    stateMachine.getExtendedState().getVariables().put("callData", call_data);
                     stateMachine.sendEvent(event);
 
-
+                    executeMessage();
                     // Отправить стейт-машине событие - колбэк, которое она обработает и вернет в видео
 
                     //findCommand(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getData());
@@ -117,7 +120,11 @@ public class VideoBot extends TelegramLongPollingBot {
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
+
             }
+
+
+
         }
 
     }

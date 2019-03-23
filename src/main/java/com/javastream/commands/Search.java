@@ -66,6 +66,32 @@ public class Search {
     }
 
 
+    public void init(Message message, String callBackText) {
+        this.message = message;
+
+        // Очищаем массивы с заголовками, фото и ссылками перед новым поисковым запросом
+        if (!headersSearchList.isEmpty())             { headersSearchList.clear(); }
+        if (!hrefsWebpagesSearchList.isEmpty())       { hrefsWebpagesSearchList.clear(); }
+        if (!imagesSearchList.isEmpty())              { imagesSearchList.clear(); }
+        if (!mp4SearchList.isEmpty())                 { mp4SearchList.clear(); }
+
+        // Поисковый запрос без /http. По этим поисковым словам будем выдергивать контент из сайта с видео
+        String searchingMessage = callBackText;
+
+        // Собираем массивы данных, которые далее будем использовать для выдачи юзеру
+        try {
+            headersSearchList = headersSearch.getHeadersOfVideos(searchingMessage);
+            hrefsWebpagesSearchList = hrefsWebpagesSearch.getHrefsOfVideos(searchingMessage);
+            imagesSearchList = imagesSearch.getImages(searchingMessage);
+            mp4SearchList = mp4Search.getHrefsOfMP4(searchingMessage);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
     // Getters and Setters
     public ArrayList<String> getHeadersSearchList() {
         return headersSearchList;
