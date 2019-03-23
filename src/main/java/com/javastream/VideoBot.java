@@ -76,63 +76,47 @@ public class VideoBot extends TelegramLongPollingBot {
 
                 // Отправляем в чат данные, полученные от стейт-машины
                 executeMessage();
-                /*
-                try {
-                    execute(new InlineKeyboard().send(update)); // Вызываем инлайн клаву
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
-                */
             }
         }
         else if (update.hasCallbackQuery()) {
-
-            System.out.println("Вызван колбэк");
-            // Определяем данные колбэка (текст, id сообщения и чата)
             String call_data = update.getCallbackQuery().getData();
-            long message_id = update.getCallbackQuery().getMessage().getMessageId();
-            long chat_id = update.getCallbackQuery().getMessage().getChatId();
             Message message = update.getCallbackQuery().getMessage();
+
+            editMessageTextForCalback(update); // Выводим в чат "Ваш запрос выполняется.."
+
+            logger.info("Вызван колбэк -> {}", call_data);
             OrderEvents event = messegeTextUtil.getEvent(call_data);
 
-            System.out.println("call_data = " + call_data);
+            // Отправляем стейт-машине на обработку событие из колбэка и 2 обьекта
+            stateMachine.getExtendedState().getVariables().put("message", message);
+            stateMachine.getExtendedState().getVariables().put("callData", call_data);
+            stateMachine.sendEvent(event);
 
-            if (call_data != null) {
-                // заменяем исходный текст после нажатия на кнопку на новый текст
-                String answer = "Ваш запрос выполняется..";
-                EditMessageText new_message = new EditMessageText()
-                        .setChatId(chat_id)
-                        .setMessageId(toIntExact(message_id))
-                        .setText(answer);
-
-                try {
-                    // отправляем новый текст в чат
-                    execute(new_message); //
-                    stateMachine.getExtendedState().getVariables().put("message", message);
-                    stateMachine.getExtendedState().getVariables().put("callData", call_data);
-                    stateMachine.sendEvent(event);
-
-                    executeMessage();
-                    // Отправить стейт-машине событие - колбэк, которое она обработает и вернет в видео
-
-                    //findCommand(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getData());
-
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-
-
+            executeMessage();  // вывод результатов найденных стейт-машиной
         }
+    }
+
+
+
+    private void editMessageTextForCalback(Update update) {
+        long message_id = update.getCallbackQuery().getMessage().getMessageId();
+        long chat_id = update.getCallbackQuery().getMessage().getChatId();
+
+        // заменяем исходный текст после нажатия на кнопку на новый текст
+        String answer = "Ваш запрос выполняется..";
+        EditMessageText new_message = new EditMessageText()
+                .setChatId(chat_id)
+                .setMessageId(toIntExact(message_id))
+                .setText(answer);
+
+        executeMessage(new_message); // отправляем новый текст в чат
 
     }
 
 
 
     /*
-    *  Универсальный метод по выводу в чат данного разного типа
+    *  Универсальный метод по выводу в чат данных разного типа
     *  Метод getExcecuteMethod() статического класс Sender возвращает тип обьекта, исходя из которого
     *  выполнение будет передано соответствующему executeMessage()
     */
@@ -153,6 +137,14 @@ public class VideoBot extends TelegramLongPollingBot {
     public void executeMessage(SendMessage sendMessage) {
         try {
             execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void executeMessage(EditMessageText editMessageText) {
+        try {
+            execute(editMessageText);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

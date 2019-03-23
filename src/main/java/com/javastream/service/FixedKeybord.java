@@ -36,7 +36,7 @@ public class FixedKeybord {
         keyboard.clear();
         keyboardFirstRow.clear();
 
-        keyboardFirstRow.add("Help");
+        keyboardFirstRow.add("Catalog");
         keyboardFirstRow.add("About Bot");
         keyboard.add(keyboardFirstRow);
 
