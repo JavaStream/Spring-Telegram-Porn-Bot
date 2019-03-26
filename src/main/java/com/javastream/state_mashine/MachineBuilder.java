@@ -120,6 +120,18 @@ public class MachineBuilder {
             .event(OrderEvents.CATALOG_COMMAND)
             .action(catalog())
 
+            // CATALOG -> FIND
+            .and().withExternal()
+            .source(OrderStates.CATALOG).target(OrderStates.FIND)
+            .event(OrderEvents.FIND_COMMAND)
+            .action(find())
+
+            // CATALOG -> START
+            .and().withExternal()
+            .source(OrderStates.CATALOG).target(OrderStates.START)
+            .event(OrderEvents.START_COMMAND)
+            .action(start())
+
             // START -> FIND
             .and().withExternal()
             .source(OrderStates.START).target(OrderStates.FIND)

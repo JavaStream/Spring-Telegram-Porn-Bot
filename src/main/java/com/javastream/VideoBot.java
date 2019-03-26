@@ -162,7 +162,7 @@ public class VideoBot extends TelegramLongPollingBot {
     private void executeMessage(Videos videos) {
         for (int i = 0; i < videos.getArrayCaptions().size(); i++) {
             try {
-                execute(new SendingPhoto().sendPhoto(videos.getMessage().get(i), videos.getArrayCaptions().get(i), videos.getArrayHref().get(i), videos.getArrUrlImg().get(i)));
+                execute(new SendingPhoto().sendPhoto(videos.getMessage().get(i), videos.getArrayCaptions().get(i), videos.getArrayHref().get(i)));
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }

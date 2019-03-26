@@ -33,12 +33,11 @@ public class FindPart {
         for (int i = lastOfIdVideo; i < (count + lastOfIdVideo); i++) {
             String caption = search.getHeadersSearchList().get(i);
             String href = search.getHrefsWebpagesSearchList().get(i);
-            String urlImg = search.getImagesSearchList().get(i);
             String urlMP4 = search.getMp4SearchList().get(i);
 
             System.out.println(search.getHeadersSearchList().get(i));
 
-            SendPhoto sendPhoto = sendingPhoto.sendPhoto(search.getMessage(), caption, href, urlImg); // Формируем объект SendPfoto с подписью и ссылками
+            SendPhoto sendPhoto = sendingPhoto.sendPhoto(search.getMessage(), caption, href); // Формируем объект SendPfoto с подписью и ссылками
             arrayPartListSendPhoto.add(sendPhoto);
         }
         return arrayPartListSendPhoto;

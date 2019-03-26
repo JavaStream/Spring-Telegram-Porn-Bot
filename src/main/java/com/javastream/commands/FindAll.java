@@ -29,10 +29,9 @@ public class FindAll {
         for (int i=0; i < search.getHeadersSearchList().size(); i++) {
             String caption = search.getHeadersSearchList().get(i);
             String href = search.getHrefsWebpagesSearchList().get(i);
-            String urlImg = search.getImagesSearchList().get(i);
             String urlMP4 = search.getMp4SearchList().get(i);
 
-            SendPhoto sendPhoto = sendingPhoto.sendPhoto(search.getMessage(), caption, href, urlImg); // Отправляем фото с подписью и ссылкой
+            SendPhoto sendPhoto = sendingPhoto.sendPhoto(search.getMessage(), caption, href); // Отправляем фото с подписью и ссылкой
             arrayFullListSendPhoto.add(sendPhoto);
         }
 
